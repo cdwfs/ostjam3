@@ -1,0 +1,74 @@
+Play
+════════════════════════════════════════════════════════════════════════
+
+const BLOCK_SIZE = xy(16,16)
+const PLAYER_SPRITESHEET = player_sprite
+const PLAYER_SPAWN_SPRITE = prototype_map.spritesheet.player_start
+const GOAL_SPRITE = prototype_map.spritesheet.goal
+
+def map_offset(m):
+    const screen_size_in_blocks = SCREEN_SIZE / BLOCK_SIZE
+    const map_size_in_blocks = map.size
+    return xy(2, 2) * BLOCK_SIZE
+def map_pos_to_cell(pos):
+    return round(pos / BLOCK_SIZE)
+def map_cell_to_pos(cell):
+    return BLOCK_SIZE * cell
+    
+// gets the value of the map cell from a world-space coordinate.
+// Only the sign of vel is used, to check the correct direction; its magnitude is ignored.
+def map_sprite(pos, vel default xy(0, 0)):
+    return get_map_sprite(map, map_pos_to_cell(pos) + sign(vel), 0)
+    
+// GLOBALS
+// The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
+// stores a reference to the entity of that type in map cell x,y, or ∅ if
+// the cell does not contain an entity of that type.
+let map = nil
+let map_xform = xy(0,0)
+let player = nil
+
+enter
+────────────────────────────────────────────────────────────────────────
+map = nil
+map_xform = xy(0,0)
+player = nil
+
+map = deep_clone(prototype_map)
+map_xform = map_offset(map)
+
+// Search map for special cells, so we can replace them with entities and
+// overwrite them in the map data
+let player_start_icell = xy(0,0)
+let goal_icell = xy(0,0)
+for mx < map.size.x:
+    for my < map.size.y:
+        const icell = xy(mx,my)
+        const ms = map[mx][my]
+        if ms == PLAYER_SPAWN_SPRITE:
+            player_start_icell = icell
+            set_map_sprite(map, icell, nil)
+        if ms == GOAL_SPRITE:
+            goal_icell = icell
+            //set_map_sprite(map, icell, nil)
+
+player = make_entity({
+    pos: map_cell_to_pos(player_start_icell),
+    sprite: player_sprite[0][0],
+    scale: xy(1,1),
+    z: 1,
+})
+// offset from cell origin to 
+player.pos += BLOCK_SIZE/2 + player.pivot
+
+frame
+────────────────────────────────────────────────────────────────────────
+
+set_background(rgb(20%, 60%, 90%))
+preserving_transform:
+    set_transform(map_xform)
+    draw_map({map:map})
+    draw_sprite(player)
+// UI
+draw_corner_rect({corner:xy(0,0), size:xy(2*BLOCK_SIZE.x, SCREEN_SIZE.y), color:#0, z:100})
+draw_corner_rect({corner:xy(0,0), size:xy(SCREEN_SIZE.x, 2*BLOCK_SIZE.y), color:#0, z:100})

@@ -1,0 +1,12 @@
+{
+    "url": "prototype-blocks.png",
+    "sprite_size": {
+        "x": 16,
+        "y": 16
+    },
+    "names": {
+        "player_start": {"x": 0, "y": 1},
+        "goal": {"x": 3, "y": 0},
+    },
+    "license": "TODO"
+}

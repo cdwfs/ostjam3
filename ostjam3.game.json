@@ -1,0 +1,28 @@
+{
+    "title": "ostjam3",
+    "developer": "Your Name Here",
+    "copyright": "©2021 Your Name Here",
+    "license": "CC0/Public Domain (Replace with your own license)",
+    "packages": [],
+    "scripts": [],
+    "modes": [
+        "Play"
+    ],
+    "start_mode": "Play",
+    "docs": [],
+    "assets": {
+        "font": "quad://fonts/deja-8.font.json",
+        "prototype_map": "prototype.map.json",
+        "player_sprite": "dawnlike-generic-16x16.sprite.json"
+    },
+    "version": 0,
+    "min_players": 1,
+    "max_players": 1,
+    "cooperative": false,
+    "competitive": false,
+    "achievements": false,
+    "highscores": false,
+    "description": "Description of your game in about 100 characters.",
+    "constants": {},
+    "screenshot_tag": "ostjam3"
+}
