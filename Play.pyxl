@@ -28,6 +28,8 @@ let map = ∅
 let map_xform = xy(0,0)
 let map_src_columns = [] // index of the column data from map to draw for each on-screen column
 let player = ∅
+let devoured_src_column = -1 // -1 = nothing devoured; otherwise it's the src column index
+let target_column_index = 0 // temporary; eventually this will be derived from player.pos.x and player.dir
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -35,6 +37,8 @@ map = ∅
 map_xform = xy(0,0)
 map_src_columns = []
 player = ∅
+devoured_src_column = -1
+target_column_index = 0
 
 map = deep_clone(prototype_map)
 map_xform = map_offset(map)
@@ -70,6 +74,21 @@ player.pos += BLOCK_SIZE/2 + player.pivot
 frame
 ────────────────────────────────────────────────────────────────────────
 
+// move target column
+target_column_index = clamp(target_column_index+joy.xx, 0, map.size.x-1)
+// remove/insert column with A
+if joy.aa:
+    if devoured_src_column < 0: // devour
+        devoured_src_column = map_src_columns[target_column_index]
+        remove_key(map_src_columns, target_column_index)
+        // TODO: if the target column was to the left of the player, insert a placeholder
+        // at index 0 to preserve the player's x location.
+    else: // regurgitate
+        insert(map_src_columns, target_column_index, devoured_src_column)
+        // TODO: if the target column was to the left of the player, remove the placeholder
+        // at index 0 to preserve the player's x location
+        devoured_src_column = -1
+
 set_background(rgb(20%, 60%, 90%))
 preserving_transform:
     set_transform(map_xform)
@@ -79,6 +98,13 @@ preserving_transform:
             const ms = get_map_sprite(map, xy(src_x, y), 0)
             if ms ≠ ∅:
                 draw_sprite({sprite:ms, pos:xy(BLOCK_SIZE.x*x, BLOCK_SIZE.y*y) + ½ BLOCK_SIZE, z:0})
+    // Highlight the target column
+    local:
+        const hx = BLOCK_SIZE.x*target_column_index
+        if devoured_src_column < 0:
+            draw_corner_rect({corner:xy(hx, 0), size:xy(BLOCK_SIZE.x, BLOCK_SIZE.y*map.size.y), color:∅, outline:#ff0})
+        else:
+            draw_line({A:xy(hx, 0), B:xy(hx, BLOCK_SIZE.y*map.size.y), width:2, color:#ff0})
     draw_sprite(player)
 // UI
 draw_corner_rect({corner:xy(0,0), size:xy(2*BLOCK_SIZE.x, SCREEN_SIZE.y), color:#0, z:100})
