@@ -19,23 +19,29 @@ def map_cell_to_pos(cell):
 // Only the sign of vel is used, to check the correct direction; its magnitude is ignored.
 def map_sprite(pos, vel default xy(0, 0)):
     return get_map_sprite(map, map_pos_to_cell(pos) + sign(vel), 0)
-    
+
 // GLOBALS
 // The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
 // stores a reference to the entity of that type in map cell x,y, or ∅ if
 // the cell does not contain an entity of that type.
-let map = nil
+let map = ∅
 let map_xform = xy(0,0)
-let player = nil
+let map_src_columns = [] // index of the column data from map to draw for each on-screen column
+let player = ∅
 
 enter
 ────────────────────────────────────────────────────────────────────────
-map = nil
+map = ∅
 map_xform = xy(0,0)
-player = nil
+map_src_columns = []
+player = ∅
 
 map = deep_clone(prototype_map)
 map_xform = map_offset(map)
+// initialize map source columns
+resize(map_src_columns, map.size.x)
+for x < map.size.x:
+    map_src_columns[x] = x
 
 // Search map for special cells, so we can replace them with entities and
 // overwrite them in the map data
@@ -67,7 +73,12 @@ frame
 set_background(rgb(20%, 60%, 90%))
 preserving_transform:
     set_transform(map_xform)
-    draw_map({map:map})
+    // Draw map by reading columns of sprites from the source data, in the order specified in map_src_columns
+    for src_x at x in map_src_columns:
+        for 0 ≤ y ≤ map.size.y:
+            const ms = get_map_sprite(map, xy(src_x, y), 0)
+            if ms ≠ ∅:
+                draw_sprite({sprite:ms, pos:xy(BLOCK_SIZE.x*x, BLOCK_SIZE.y*y) + ½ BLOCK_SIZE, z:0})
     draw_sprite(player)
 // UI
 draw_corner_rect({corner:xy(0,0), size:xy(2*BLOCK_SIZE.x, SCREEN_SIZE.y), color:#0, z:100})
