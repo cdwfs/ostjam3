@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*~
+#*
+*.zip
+*.wav
+*.reason
+*.xcf
