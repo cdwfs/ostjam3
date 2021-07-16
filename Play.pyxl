@@ -62,13 +62,12 @@ for mx < map.size.x:
 
 hero = make_entity({
     pos: map_cell_to_pos(hero_start_icell),
+    name: "Hero",
     sprite: HERO_SPRITE.right[0],
     scale: xy(1,1),
     dir: +1,
     z: 1,
 })
-// offset from cell origin to hero's feet.
-hero.pos += hero.pivot
 
 frame
 ────────────────────────────────────────────────────────────────────────

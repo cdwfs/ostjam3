@@ -2,7 +2,6 @@
     "url":          "dawnlike-generic-16x16.png",
     "sprite_size":   {"x": 16, "y": 16},
     "gutter":       0,
-    "pivot":        {"x": 8, "y": 16},
     "names": {
         "left": {"start": {"x": 0, "y": 1}, "end": {"x": 3, "y": 1}, "frames": [5, 5, 5, 5]},
         "right": {"start": {"x": 0, "y": 2}, "end": {"x": 3, "y": 2}, "frames": [5, 5, 5, 5]},
