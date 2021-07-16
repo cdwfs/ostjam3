@@ -2,8 +2,8 @@ Play
 ════════════════════════════════════════════════════════════════════════
 
 const BLOCK_SIZE = xy(16,16)
-const PLAYER_SPRITESHEET = player_sprite
-const PLAYER_SPAWN_SPRITE = prototype_map.spritesheet.player_start
+const HERO_SPRITE = hero_sprite
+const HERO_SPAWN_SPRITE = prototype_map.spritesheet.player_start
 const GOAL_SPRITE = prototype_map.spritesheet.goal
 
 def map_offset(m):
@@ -27,18 +27,16 @@ def map_sprite(pos, vel default xy(0, 0)):
 let map = ∅
 let map_xform = xy(0,0)
 let map_src_columns = [] // index of the column data from map to draw for each on-screen column
-let player = ∅
+let hero = ∅
 let devoured_src_column = -1 // -1 = nothing devoured; otherwise it's the src column index
-let target_column_index = 0 // temporary; eventually this will be derived from player.pos.x and player.dir
 
 enter
 ────────────────────────────────────────────────────────────────────────
 map = ∅
 map_xform = xy(0,0)
 map_src_columns = []
-player = ∅
+hero = ∅
 devoured_src_column = -1
-target_column_index = 0
 
 map = deep_clone(prototype_map)
 map_xform = map_offset(map)
@@ -49,63 +47,86 @@ for x < map.size.x:
 
 // Search map for special cells, so we can replace them with entities and
 // overwrite them in the map data
-let player_start_icell = xy(0,0)
+let hero_start_icell = xy(0,0)
 let goal_icell = xy(0,0)
 for mx < map.size.x:
     for my < map.size.y:
         const icell = xy(mx,my)
         const ms = map[mx][my]
-        if ms == PLAYER_SPAWN_SPRITE:
-            player_start_icell = icell
+        if ms == HERO_SPAWN_SPRITE:
+            hero_start_icell = icell
             set_map_sprite(map, icell, nil)
         if ms == GOAL_SPRITE:
             goal_icell = icell
             //set_map_sprite(map, icell, nil)
 
-player = make_entity({
-    pos: map_cell_to_pos(player_start_icell),
-    sprite: player_sprite[0][0],
+hero = make_entity({
+    pos: map_cell_to_pos(hero_start_icell),
+    sprite: HERO_SPRITE.right[0],
     scale: xy(1,1),
+    dir: +1,
     z: 1,
 })
-// offset from cell origin to 
-player.pos += BLOCK_SIZE/2 + player.pivot
+// offset from cell origin to hero's feet.
+hero.pos += hero.pivot
 
 frame
 ────────────────────────────────────────────────────────────────────────
 
-// move target column
-target_column_index = clamp(target_column_index+joy.xx, 0, map.size.x-1)
+// update hero
+local:
+    if joy.xx:
+        hero.dir = joy.xx
+    hero.pos.x = clamp(hero.pos.x + joy.x, 0, (map.size.x - 1)*BLOCK_SIZE.x)
+    const anim = if hero.dir == 1 then HERO_SPRITE.right else HERO_SPRITE.left
+    hero.sprite = if (joy.xx or joy.x) then anim.frame(mode_frames) else anim.frame(0)
+// identify target column
+let target_column_index = 0
+local:
+    const hero_icell = map_pos_to_cell(hero.pos)
+    if devoured_src_column < 0:
+        target_column_index = clamp(if hero.dir > 0 then hero_icell.x+1 else hero_icell.x-1, 0, map.size.x-1)
+    else:
+        target_column_index = clamp(if hero.dir > 0 then hero_icell.x+1 else hero_icell.x, 0, map.size.x-1)
+    
 // remove/insert column with A
 if joy.aa:
     if devoured_src_column < 0: // devour
         devoured_src_column = map_src_columns[target_column_index]
         remove_key(map_src_columns, target_column_index)
-        // TODO: if the target column was to the left of the player, insert a placeholder
-        // at index 0 to preserve the player's x location.
+        map_xform.x += BLOCK_SIZE.x // keep map right-aligned
+        // TODO: push hero back if they're now standing in a wall
+        if hero.dir < 0:
+            hero.pos.x -= BLOCK_SIZE.x // maintain hero's map-relative position
     else: // regurgitate
         insert(map_src_columns, target_column_index, devoured_src_column)
-        // TODO: if the target column was to the left of the player, remove the placeholder
-        // at index 0 to preserve the player's x location
         devoured_src_column = -1
+        map_xform.x -= BLOCK_SIZE.x // keep map right-aligned
+        // TODO: push hero back if they're now standing in a wall
+        if hero.dir < 0:
+            hero.pos.x += BLOCK_SIZE.x // maintain hero's map-relative position
 
 set_background(rgb(20%, 60%, 90%))
 preserving_transform:
     set_transform(map_xform)
+    // Offset by ½ a grid square so that we can use integer coordinates for the centers of grid tiles
+    compose_transform(0.5 BLOCK_SIZE)
     // Draw map by reading columns of sprites from the source data, in the order specified in map_src_columns
     for src_x at x in map_src_columns:
         for 0 ≤ y ≤ map.size.y:
             const ms = get_map_sprite(map, xy(src_x, y), 0)
             if ms ≠ ∅:
-                draw_sprite({sprite:ms, pos:xy(BLOCK_SIZE.x*x, BLOCK_SIZE.y*y) + ½ BLOCK_SIZE, z:0})
+                draw_sprite({sprite:ms, pos:xy(BLOCK_SIZE.x*x, BLOCK_SIZE.y*y), z:0})
     // Highlight the target column
     local:
-        const hx = BLOCK_SIZE.x*target_column_index
+        const corner = xy(BLOCK_SIZE.x*target_column_index, 0) - ½ BLOCK_SIZE
         if devoured_src_column < 0:
-            draw_corner_rect({corner:xy(hx, 0), size:xy(BLOCK_SIZE.x, BLOCK_SIZE.y*map.size.y), color:∅, outline:#ff0})
+            draw_corner_rect({corner:corner, size:xy(BLOCK_SIZE.x, BLOCK_SIZE.y*map.size.y), color:∅, outline:#ff0})
         else:
-            draw_line({A:xy(hx, 0), B:xy(hx, BLOCK_SIZE.y*map.size.y), width:2, color:#ff0})
-    draw_sprite(player)
+            draw_line({A:corner, B:corner+xy(0,BLOCK_SIZE.y*map.size.y), width:2, color:#ff0})
+    
+    // Draw hero
+    draw_sprite(hero)
 // UI
 draw_corner_rect({corner:xy(0,0), size:xy(2*BLOCK_SIZE.x, SCREEN_SIZE.y), color:#0, z:100})
 draw_corner_rect({corner:xy(0,0), size:xy(SCREEN_SIZE.x, 2*BLOCK_SIZE.y), color:#0, z:100})
