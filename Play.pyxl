@@ -19,6 +19,65 @@ def map_cell_to_pos(cell):
 // Only the sign of vel is used, to check the correct direction; its magnitude is ignored.
 def map_sprite(pos, vel default xy(0, 0)):
     return get_map_sprite(map, map_pos_to_cell(pos) + sign(vel), 0)
+    
+def is_cell_solid(icell):
+    // look up the actual column data for this cell
+    if icell.x < 0 or icell.x ≥ size(map_src_columns) or icell.y < 0 or icell.y ≥ map.size.y:
+        return true
+    const src_x = map_src_columns[icell.x]
+    const ms = get_map_sprite(map, xy(src_x, icell.y), 0)
+    // For now, if there's a sprite in this cell, it's solid. If necessary, we could tag
+    // certain sprites as passable in the sprite sheet.
+    return ms ≠ ∅
+
+def is_point_in_solid_cell(p):
+        const c = map_pos_to_cell(p)
+        return is_cell_solid(c)
+def is_hero_on_ground(h):
+    // If y pos isn't exactly in the middle of the cell, we're not on the ground.
+    if h.pos.y % BLOCK_SIZE.y ≠ 0:
+        return false
+    // test the left foot and right foot pos, plus the pixels directly below them.
+    // If the bottom point is in a solid cell and the top point isn't (on either side),
+    // we're on the ground.
+    const pos_l = h.pos + xy(-h.size.x/2, +h.size.y/2 - 1)
+    if not is_point_in_solid_cell(pos_l) and is_point_in_solid_cell(pos_l+xy(0,1)):
+        return true
+    const pos_r = h.pos + xy(+h.size.x/2, +h.size.y/2- 1)
+    if not is_point_in_solid_cell(pos_r) and is_point_in_solid_cell(pos_r+xy(0,1)):
+        return true
+    return false
+    
+def clamp_hero_to_map(h):
+    const pos_c = map_cell_to_pos(map_pos_to_cell(h.pos))
+    // Fully resolve horizontal movement before considering vertical movement,
+    // to prevent getting stuck in walls
+    local:
+        const pos_tl = h.pos + xy(-h.size.x/2, -h.size.y/2) + xy(+1,+1)
+        const pos_bl = h.pos + xy(-h.size.x/2, +h.size.y/2) + xy(+1,-1)
+        const pos_tr = h.pos + xy(+h.size.x/2, -h.size.y/2) + xy(-1,+1)
+        const pos_br = h.pos + xy(+h.size.x/2, +h.size.y/2) + xy(-1,-1)
+        if h.vel.x > 0:
+            if is_point_in_solid_cell(pos_tr) or is_point_in_solid_cell(pos_br):
+                h.pos.x = pos_c.x + (BLOCK_SIZE.x/2 - h.size.x/2)
+                h.vel.x = 0
+        if h.vel.x < 0:
+            if is_point_in_solid_cell(pos_tl) or is_point_in_solid_cell(pos_bl):
+                h.pos.x = pos_c.x - (BLOCK_SIZE.x/2 - h.size.x/2)
+                h.vel.x = 0
+    local:
+        const pos_tl = h.pos + xy(-h.size.x/2, -h.size.y/2) + xy(+1,+1)
+        const pos_bl = h.pos + xy(-h.size.x/2, +h.size.y/2) + xy(+1,-1)
+        const pos_tr = h.pos + xy(+h.size.x/2, -h.size.y/2) + xy(-1,+1)
+        const pos_br = h.pos + xy(+h.size.x/2, +h.size.y/2) + xy(-1,-1)
+        if h.vel.y > 0:
+            if is_point_in_solid_cell(pos_bl) or is_point_in_solid_cell(pos_br):
+                h.pos.y = pos_c.y + (BLOCK_SIZE.y/2 - h.size.y/2)
+                h.vel.y = 0
+        if h.vel.y < 0:
+            if is_point_in_solid_cell(pos_tl) or is_point_in_solid_cell(pos_tr):
+                h.pos.y = pos_c.y - (BLOCK_SIZE.y/2 - h.size.x/2)
+                h.vel.y = 0
 
 // GLOBALS
 // The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
@@ -65,6 +124,7 @@ hero = make_entity({
     name: "Hero",
     sprite: HERO_SPRITE.right[0],
     scale: xy(1,1),
+    size: xy(8,16),
     dir: +1,
     z: 1,
 })
@@ -76,9 +136,19 @@ frame
 local:
     if joy.xx:
         hero.dir = joy.xx
-    hero.pos.x = clamp(hero.pos.x + joy.x, 0, (map.size.x - 1)*BLOCK_SIZE.x)
     const anim = if hero.dir == 1 then HERO_SPRITE.right else HERO_SPRITE.left
     hero.sprite = if (joy.xx or joy.x) then anim.frame(mode_frames) else anim.frame(0)
+    hero.vel.x = joy.x
+    // jumping/gravity
+    const is_on_ground = is_hero_on_ground(hero)
+    if is_on_ground:
+        hero.vel.y = if joy.bb then -JUMP_VEL else 0
+    else:
+        hero.force.y = GRAVITY_FORCE
+    // apply forces & velocity
+    entity_simulate(hero)
+    clamp_hero_to_map(hero)
+    
 // identify target column
 let target_column_index = 0
 local:

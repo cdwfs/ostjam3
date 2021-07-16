@@ -23,6 +23,25 @@
     "achievements": false,
     "highscores": false,
     "description": "Description of your game in about 100 characters.",
-    "constants": {},
+    "constants": {
+        "JUMP_VEL": {
+            "type": "number",
+            "value": "5",
+            "description": "Initial upward velocity when the player jumps, in pixels",
+            "min": 0,
+            "max": 100,
+            "format": "",
+            "quantum": 1
+        },
+        "GRAVITY_FORCE": {
+            "type": "number",
+            "value": "40",
+            "description": "pixels/second^2",
+            "min": 0,
+            "max": 40,
+            "format": "",
+            "quantum": 0
+        }
+    },
     "screenshot_tag": "ostjam3"
 }
