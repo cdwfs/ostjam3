@@ -28,12 +28,12 @@
     "constants": {
         "JUMP_VEL": {
             "type": "number",
-            "value": "5",
+            "value": "4.5",
             "description": "Initial upward velocity when the player jumps, in pixels",
             "min": 0,
-            "max": 100,
+            "max": 8,
             "format": "",
-            "quantum": 1
+            "quantum": 0.125
         },
         "GRAVITY_FORCE": {
             "type": "number",

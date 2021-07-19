@@ -177,7 +177,7 @@ local:
     const anim = if hero.dir == 1 then HERO_SPRITE.right else HERO_SPRITE.left
     hero.sprite = if (joy.xx or joy.x) then anim.frame(mode_frames) else anim.frame(0)
     if not is_hero_on_wall(hero):
-        hero.vel.x = joy.x
+        hero.vel.x = joy.x * 0.7
     // jumping/gravity
     const is_on_ground = is_hero_on_ground(hero)
     if is_on_ground:
