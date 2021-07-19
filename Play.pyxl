@@ -3,8 +3,14 @@ Play
 
 const BLOCK_SIZE = xy(16,16)
 const HERO_SPRITE = hero_sprite
-const HERO_SPAWN_SPRITE = prototype_map.spritesheet.player_start
-const GOAL_SPRITE = prototype_map.spritesheet.goal
+const ALL_MAPS = [
+    prototype_map,
+    basicpuzzle1_map,
+    basicpuzzle2_map,
+]
+const MAP_INDEX = 1
+const HERO_SPAWN_SPRITE = ALL_MAPS[MAP_INDEX].spritesheet.player_start
+const GOAL_SPRITE = ALL_MAPS[MAP_INDEX].spritesheet.goal
 
 def map_offset(m):
     const screen_size_in_blocks = SCREEN_SIZE / BLOCK_SIZE
@@ -129,7 +135,7 @@ map_src_columns = []
 hero = ∅
 devoured_src_column = -1
 
-map = deep_clone(prototype_map)
+map = deep_clone(ALL_MAPS[MAP_INDEX])
 map_xform = map_offset(map)
 // initialize map source columns
 resize(map_src_columns, map.size.x)
