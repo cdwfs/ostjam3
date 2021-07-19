@@ -193,7 +193,7 @@ let target_column_index = 0
 local:
     const hero_icell = map_pos_to_cell(hero.pos)
     if devoured_src_column < 0:
-        target_column_index = clamp(if hero.dir > 0 then hero_icell.x+1 else hero_icell.x-1, 0, map.size.x-1)
+        target_column_index = hero_icell.x//clamp(if hero.dir > 0 then hero_icell.x+1 else hero_icell.x-1, 0, map.size.x-1)
     else:
         target_column_index = clamp(if hero.dir > 0 then hero_icell.x+1 else hero_icell.x, 0, map.size.x-1)
     
@@ -204,6 +204,14 @@ if joy.bb:
         remove_key(map_src_columns, target_column_index)
         map_xform.x += BLOCK_SIZE.x // keep map right-aligned
         // TODO: push hero back if they're now standing in a wall
+        const hero_icell = map_pos_to_cell(hero.pos)
+        if is_cell_solid(hero_icell):
+            if not is_cell_solid(hero_icell + xy(-1,0)):
+                hero.pos = map_cell_to_pos(hero_icell + xy(-1,0))
+            else if not is_cell_solid(hero_icell + xy(+1,0)):
+                hero.pos = map_cell_to_pos(hero_icell + xy(+1,0))
+            else:
+                debug_print("Squish")
         if hero.dir < 0:
             hero.pos.x -= BLOCK_SIZE.x // maintain hero's map-relative position
     else: // regurgitate
