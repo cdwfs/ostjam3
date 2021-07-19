@@ -34,7 +34,7 @@ def is_cell_solid(icell):
     const ms = get_map_sprite(map, xy(src_x, icell.y), 0)
     // For now, if there's a sprite in this cell, it's solid. If necessary, we could tag
     // certain sprites as passable in the sprite sheet.
-    return ms ≠ ∅
+    return ms ≠ ∅ and not ms.passable
 
 def is_point_in_solid_cell(p):
         const c = map_pos_to_cell(p)
