@@ -61,17 +61,19 @@ def is_hero_on_wall(h):
     // test the left foot and right foot pos, plus the pixels directly below them.
     // If the bottom point is in a solid cell and the top point isn't (on either side),
     // we're on the ground.
-    if h.dir > 0: // facing right
+    if h.dir > 0 and h.vel.y ≤ 0: // facing right, not moving down
         const pos_t = h.pos + xy(+h.size.x/2-1, -(h.size.y/2 - 1))
         if not is_point_in_solid_cell(pos_t) and is_point_in_solid_cell(pos_t+xy(1,0)):
             return true
+    if h.dir > 0 and h.vel.y ≥ 0: // facing right, not moving up
         const pos_b = h.pos + xy(+h.size.x/2-1, +(h.size.y/2 - 1))
         if not is_point_in_solid_cell(pos_b) and is_point_in_solid_cell(pos_b+xy(1,0)):
             return true
-    else:
+    if h.dir < 0 and h.vel.y ≤ 0: // facing left, not moving down
         const pos_t = h.pos - xy(+h.size.x/2, -(h.size.y/2 - 1))
         if not is_point_in_solid_cell(pos_t) and is_point_in_solid_cell(pos_t-xy(1,0)):
             return true
+    if h.dir < 0 and h.vel.y ≥ 0: // facing left, not moving up
         const pos_b = h.pos - xy(+h.size.x/2, +(h.size.y/2 - 1))
         if not is_point_in_solid_cell(pos_b) and is_point_in_solid_cell(pos_b-xy(1,0)):
             return true
@@ -87,13 +89,13 @@ def clamp_hero_to_map(h):
         if h.vel.x > 0:
             const pos_tr = h.pos + xy(+h.size.x/2, -h.size.y/2) + xy(-1,+1)
             const pos_br = h.pos + xy(+h.size.x/2, +h.size.y/2) + xy(-1,-1)
-            if is_point_in_solid_cell(pos_tr) or is_point_in_solid_cell(pos_br):
+            if (is_point_in_solid_cell(pos_tr) and h.vel.y ≤ 0) or (is_point_in_solid_cell(pos_br) and h.vel.y ≥ 0):
                 gx = pos_c.x + (BLOCK_SIZE.x/2 - h.size.x/2)
                 dx = abs(h.pos.x - gx)
         else if h.vel.x < 0:
             const pos_tl = h.pos + xy(-h.size.x/2, -h.size.y/2) + xy(+1,+1)
             const pos_bl = h.pos + xy(-h.size.x/2, +h.size.y/2) + xy(+1,-1)
-            if is_point_in_solid_cell(pos_tl) or is_point_in_solid_cell(pos_bl):
+            if (is_point_in_solid_cell(pos_tl) and h.vel.y ≤ 0) or (is_point_in_solid_cell(pos_bl) and h.vel.y ≥ 0):
                 gx = pos_c.x - (BLOCK_SIZE.x/2 - h.size.x/2)
                 dx = abs(h.pos.x - gx)
         if h.vel.y > 0:
