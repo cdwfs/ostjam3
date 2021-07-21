@@ -8,11 +8,12 @@
         "devourable": {
             "x": 0,
             "y": 0,
-            "passable": true
+            "passable": true,
+            "can_devour": true,
         },
         "player_start": {
             "x": 0,
-            "y": 1,
+            "y": 1
         },
         "goal": {
             "x": 3,
