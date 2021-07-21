@@ -214,8 +214,6 @@ if joy.bb:
                 hero.pos = map_cell_to_pos(hero_icell + xy(+1,0))
             else:
                 debug_print("Squish")
-        if hero.dir < 0:
-            hero.pos.x -= BLOCK_SIZE.x // maintain hero's map-relative position
     else: // regurgitate
         insert(map_src_columns, target_column_index, devoured_src_column)
         devoured_src_column = -1
