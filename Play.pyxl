@@ -1,8 +1,84 @@
 Play
 ════════════════════════════════════════════════════════════════════════
 
+const GROUND_Y = SCREEN_SIZE.y-16
+const MISSILE_SPEED = 0.5
 
+
+
+let buildings = []
+let missiles = []
+
+enter
+────────────────────────────────────────────────────────────────────────
+buildings = []
+missiles = []
+// create building entities
+for x in [64, 128, 192, 256, 320]:
+    let building = make_entity({
+        pos: xy(x, GROUND_Y-4),
+        name: "Building " + (1+x/64),
+        z: 1,
+        shape: "rect",
+        sprite: prototype_blocks_sprite[3][0],
+    })
+    push(buildings, building)
 
 frame
 ────────────────────────────────────────────────────────────────────────
 
+// randomly spawn a new missile
+if ξ < 0.003:
+    const target_building = random_value(buildings)
+    const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), 0)
+    const missile_dir = direction(target_building.pos - missile_pos)
+    def draw_missile(e):
+        // draw missile
+        draw_rect({pos:e.pos, size:e.size, color:#f00, z:e.z})
+        // draw trail
+        const trail_length = magnitude(e.pos - e.start_pos)
+        let p=0
+        while p <= trail_length:
+            draw_line({A:e.start_pos + p*e.dir, B:e.start_pos + (p+3)*e.dir, color:#800})
+            p += 10
+    let missile = make_entity({
+        pos: missile_pos,
+        start_pos: missile_pos,
+        z:2,
+        size: xy(3,3),
+        shape: "rect",
+        dir: missile_dir,
+        vel: MISSILE_SPEED*missile_dir,
+        draw: draw_missile,
+        target_building: target_building,
+    })
+    push(missiles, missile)
+
+// Advance missiles & check for impact
+for missile in missiles:
+    missile.pos += missile.vel
+def itor_missile_process_collisions(missile):
+    if overlaps(missile, missile.target_building, false):
+        missile.target_building.destroyed = true
+        // TODO: spawn explosion
+        return iterate.REMOVE
+    else if missile.pos.y ≥ GROUND_Y:
+        // TODO: spawn explosion
+        return iterate.REMOVE
+        
+iterate(missiles, itor_missile_process_collisions)
+// Destroy any buildings that were hit by missiles
+def itor_building_destroy(building):
+    if building.destroyed:
+        building.pos = xy(-100,-100)
+        return iterate.REMOVE
+iterate(buildings, itor_building_destroy)
+
+// ground
+draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:#242})
+// buildings
+for building in buildings:
+    draw_entity(building)
+// missiles
+for missile in missiles:
+    missile.draw(missile)
