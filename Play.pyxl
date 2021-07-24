@@ -121,11 +121,18 @@ def make_portal(pos):
         name:"Portal",
         radius: PORTAL_RADIUS,
         size: PORTAL_RADIUS*xy(2,2),
-        buddy: nil
+        buddy: ∅,
+        spawn_f: mode_frames,
     })
+def itor_portal_update(portal):
+    if portal.buddy ≠ ∅:
+        portal.radius = lerp(PORTAL_RADIUS, 0, mode_frames, portal.spawn_f, portal.spawn_f + 10*60)
+        if portal.radius == 0:
+            return iterate.REMOVE
+        portal.size = portal.radius * xy(2,2)
 def itor_portal_draw(portal):
     if portal.buddy == ∅:
-        draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: #0000, outline:#248})
+        draw_disk({pos:portal.pos, z:portal.z, radius:PORTAL_RADIUS, color: #0000, outline:#248})
     else:
         draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: #48c, outline:#248})
 
@@ -163,6 +170,7 @@ if joy.aa:
     else: // second in pair
         portal.buddy = current_portal
         current_portal.buddy = portal
+        current_portal.spawn_f = mode_frames
         // add both portals to the master list
         push(portals, current_portal, portal)
         current_portal = ∅
@@ -172,6 +180,8 @@ if size(missiles) < MAX_MISSILE_COUNT and ξ < 0.003:
     push(missiles, make_missile())
 // Grow/prune explosions
 iterate(explosions, itor_explosion_update)
+// Shrink/prune portals
+iterate(portals, itor_portal_update)
 // Advance missiles & check for impact
 iterate(missiles, itor_missile_update)
 // Destroy any buildings that were hit by missiles
