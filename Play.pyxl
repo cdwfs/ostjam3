@@ -46,22 +46,21 @@ def make_missile():
     const missile_dir = direction(target_building.pos - missile_pos)
     return make_entity({
         pos: missile_pos,
-        start_pos: missile_pos,
         z:2,
         size: xy(3,3),
         shape: "rect",
         dir: missile_dir,
+        trail_start_pos: missile_pos,
+        trail_lines: [],
         vel: MISSILE_SPEED*missile_dir,
     })
 def itor_missile_draw(m):
     // draw missile
     draw_rect({pos:m.pos, size:m.size, color:#f00, z:m.z})
     // draw trail
-    const trail_length = magnitude(m.pos - m.start_pos)
-    let p=0
-    while p <= trail_length:
-        draw_line({A:m.start_pos + p*m.dir, B:m.start_pos + (p+3)*m.dir, color:#800})
-        p += 10
+    draw_line({A:m.pos, B:m.trail_start_pos, color:#800})
+    for line in m.trail_lines:
+        draw_line({A:line.A, B:line.B, color:#800})
 def itor_missile_update(missile):
     missile.pos += missile.vel
     // collide with explosions
