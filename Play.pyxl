@@ -6,6 +6,19 @@ const MISSILE_SPEED = 0.5
 const EXPLOSION_DURATION = 120
 const EXPLOSION_MAX_RADIUS = 32
 
+def make_building(pos):
+  return make_entity({
+        pos: pos,
+        z: 1,
+        name: "Building",
+        shape: "rect",
+        sprite: prototype_blocks_sprite[3][0],
+    })
+def itor_building_destroy(building):
+    if building.destroyed:
+        building.pos = xy(-100,-100)
+        return iterate.REMOVE
+    
 def make_explosion(pos):
     return make_entity({
         pos: pos,
@@ -18,7 +31,7 @@ def make_explosion(pos):
         end_f: mode_frames+EXPLOSION_DURATION,
     })
 def itor_explosion_draw(e):
-    draw_disk({pos:e.pos, radius:e.radius, color:#c84, z:e.z})
+    draw_disk({pos:e.pos, radius:e.radius, color:#c84, outline:#f80, z:e.z})
 def itor_explosion_update(e):
     const t = (mode_frames - e.start_f) / (e.end_f - e.start_f)
     if t ≥ 1.0:
@@ -85,14 +98,7 @@ let cursor_pos = 50% SCREEN_SIZE
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
-    let building = make_entity({
-        pos: xy(x, GROUND_Y-4),
-        name: "Building " + (1+x/64),
-        z: 1,
-        shape: "rect",
-        sprite: prototype_blocks_sprite[3][0],
-    })
-    push(buildings, building)
+    push(buildings, make_building(xy(x, GROUND_Y-4)))
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -108,14 +114,9 @@ if ξ < 0.003:
     push(missiles, make_missile())
 // Grow/prune explosions
 iterate(explosions, itor_explosion_update)
-
 // Advance missiles & check for impact
 iterate(missiles, itor_missile_update)
 // Destroy any buildings that were hit by missiles
-def itor_building_destroy(building):
-    if building.destroyed:
-        building.pos = xy(-100,-100)
-        return iterate.REMOVE
 iterate(buildings, itor_building_destroy)
 
 // Rendering
