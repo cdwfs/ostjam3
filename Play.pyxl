@@ -93,7 +93,7 @@ enter
 explosions = []
 buildings = []
 missiles = []
-let cursor_pos = 50% SCREEN_SIZE
+cursor_pos = 50% SCREEN_SIZE
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
