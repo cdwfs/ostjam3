@@ -46,8 +46,8 @@ def make_missile():
     const missile_dir = direction(target_building.pos - missile_pos)
     let ray = {pos:missile_pos, dir:missile_dir}
     const hit_portal = ray_intersect(ray, portals)
-    const enter_point = ray.pos + ray.length*ray.dir
-    const exit_point = missile_portal_exit_point(missile_dir, hit_portal, enter_point)
+    const entry_pos = ray.pos + ray.length*ray.dir
+    const exit_pos = missile_portal_exit_pos(missile_dir, hit_portal, entry_pos)
     return make_entity({
         pos: missile_pos,
         z:2,
@@ -59,39 +59,48 @@ def make_missile():
         vel: MISSILE_SPEED*missile_dir,
         is_in_portal: false,
         next_portal: hit_portal,
-        portal_enter_point: enter_point,
-        portal_exit_point: exit_point,
+        portal_entry_pos: entry_pos,
+        portal_exit_pos: exit_pos,
     })
-def missile_portal_exit_point(missile_dir, portal, enter_point):
+def missile_portal_exit_pos(missile_dir, portal, entry_pos):
     if portal == ∅:
-        return enter_point
+        return entry_pos
     // compute intersection on far side of portal. Need to get sneaky here as ray_intersect
     // treats the circle as solid & will report our current position as the exit point.
     // So instead, look ahead to a point beyond the diameter of the circle along the ray,
     // and then trace backwards.
-    let ray = {pos:enter_point + 3*portal.radius*missile_dir, dir:-missile_dir}
+    let ray = {pos:entry_pos + 3*portal.radius*missile_dir, dir:-missile_dir}
     let hit_portal = ray_intersect(ray, portal)
-    return if hit_portal ≠ ∅ then ray.pos + ray.dir * ray.length else clone(enter_point)    
+    return if hit_portal ≠ ∅ then ray.pos + ray.dir * ray.length else clone(entry_pos)
 def itor_missile_draw(m):
     // draw missile
-    draw_rect({pos:m.pos, size:m.size, color:#f00, z:m.z})
+    if m.is_in_portal: // ghost missile, mid-warp
+        const arc_len = magnitude(m.portal_exit_pos - m.portal_entry_pos) + 0.001
+        const dist = magnitude(m.pos - m.portal_entry_pos)
+        const exit_pos = (m.portal_exit_pos - m.next_portal.pos) + m.next_portal.buddy.pos
+        const ghost_pos = lerp(m.portal_entry_pos, exit_pos, dist, 0, arc_len)
+        draw_rect({pos:ghost_pos, size:m.size, color:#00c, z:m.z})
+    else: // normal missile
+        draw_rect({pos:m.pos, size:m.size, color:#f00, z:m.z})
     // draw trail
-    draw_line({A:m.pos, B:m.trail_start_pos, z:0, color:#800})
+    if not m.is_in_portal:
+        draw_line({A:m.pos, B:m.trail_start_pos, z:0, color:#800})
     for line in m.trail_lines:
         draw_line({A:line.A, B:line.B, z:0, color:#800})
     if DEBUG_DRAW_MISSILE_TARGETS:
-        draw_line({A:m.pos, B: if m.next_portal ≠ ∅ then m.portal_entry_point else m.pos+m.dir*1000, color:#f0f})
+        draw_line({A:m.pos, B: if m.next_portal ≠ ∅ then m.portal_entry_pos else m.pos+m.dir*1000, color:#f0f})
     
 def itor_missile_update(missile):
     missile.pos += missile.vel
     // collide with portal
     if missile.next_portal ≠ ∅:
         // handle entering portal
-        if not missile.is_in_portal and dot(missile.portal_entry_point - missile.pos, missile.dir) < 0:
-            push(missile.trail_lines, {A:missile.trail_start_pos, B:missile.pos})
+        if not missile.is_in_portal and dot(missile.portal_entry_pos - missile.pos, missile.dir) < 0:
             missile.is_in_portal = true
+            // push exising trail
+            push(missile.trail_lines, {A:clone(missile.trail_start_pos), B:clone(missile.portal_entry_pos)})
         // handle exiting portal (may happen the same frame as the entry)
-        if missile.is_in_portal and dot(missile.portal_exit_point - missile.pos, missile.dir) < 0:
+        if missile.is_in_portal and dot(missile.portal_exit_pos - missile.pos, missile.dir) < 0:
             // warp to exit portal
             const offset = missile.pos - missile.next_portal.pos
             missile.pos = missile.next_portal.buddy.pos + offset
@@ -100,9 +109,9 @@ def itor_missile_update(missile):
             let portals_minus_exit = clone(portals)
             fast_remove_value(portals_minus_exit, missile.next_portal.buddy)
             missile.next_portal = ray_intersect(ray, portals_minus_exit)
-            missile.portal_entry_point = ray.pos + ray.dir * ray.length
-            missile.portal_exit_point = missile_portal_exit_point(missile.dir,
-                missile.next_portal, missile.portal_entry_point)
+            missile.portal_entry_pos = ray.pos + ray.dir * ray.length
+            missile.portal_exit_pos = missile_portal_exit_pos(missile.dir,
+                missile.next_portal, missile.portal_entry_pos)
             missile.trail_start_pos = clone(missile.pos)
             missile.is_in_portal = false
         
@@ -179,13 +188,13 @@ if joy.aa:
         // Trace from all missiles to new portals, to see if they're closer
         const new_portals = [current_portal, portal]
         for m in missiles:
-            const len = if m.next_portal ≠ ∅ then magnitude(m.portal_entry_point - m.pos) else infinity
+            const len = if m.next_portal ≠ ∅ then magnitude(m.portal_entry_pos - m.pos) else infinity
             let ray = {pos:m.pos, dir:m.dir, length: len}
             const hit_portal = ray_intersect(ray, new_portals)
             if hit_portal ≠ ∅:
                 m.next_portal = hit_portal
-                m.portal_entry_point = ray.pos + ray.dir*ray.length
-                m.portal_exit_point = missile_portal_exit_point(m.dir, hit_portal, m.portal_entry_point)
+                m.portal_entry_pos = ray.pos + ray.dir*ray.length
+                m.portal_exit_pos = missile_portal_exit_pos(m.dir, hit_portal, m.portal_entry_pos)
         // add both portals to the master list
         push(portals, current_portal, portal)
         current_portal = ∅
