@@ -120,8 +120,8 @@ iterate(buildings, itor_building_destroy)
 
 // Rendering
 // cursor
-draw_line({A:cursor_pos-xy(3,0), B:cursor_pos+xy(3,0), color:#f})
-draw_line({A:cursor_pos-xy(0,3), B:cursor_pos+xy(0,3), color:#f})
+draw_line({A:cursor_pos-xy(3,0), B:cursor_pos+xy(3,0), z:10, color:#f})
+draw_line({A:cursor_pos-xy(0,3), B:cursor_pos+xy(0,3), z:10, color:#f})
 // ground
 draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:#242})
 // buildings
