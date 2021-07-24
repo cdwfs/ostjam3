@@ -41,7 +41,8 @@ def itor_explosion_update(e):
     
 def make_missile():
     const target_building = random_value(buildings)
-    const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), 0)
+    // spawn far enough off-screen to ensure w don't spawn inside a portal or explosion
+    const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), -max(EXPLOSION_MAX_RADIUS, PORTAL_RADIUS))
     const missile_dir = direction(target_building.pos - missile_pos)
     return make_entity({
         pos: missile_pos,
