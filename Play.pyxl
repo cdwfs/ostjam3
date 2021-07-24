@@ -2,7 +2,6 @@ Play
 ════════════════════════════════════════════════════════════════════════
 
 const GROUND_Y = SCREEN_SIZE.y-16
-const MISSILE_SPEED = 0.5
 const EXPLOSION_DURATION = 120
 const EXPLOSION_MAX_RADIUS = 32
 const PORTAL_RADIUS = 16

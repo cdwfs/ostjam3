@@ -23,6 +23,30 @@
     "achievements": false,
     "highscores": false,
     "description": "Description of your game in about 100 characters.",
-    "constants": {},
+    "constants": {
+        "DEBUG_DRAW_MISSILE_TARGETS": {
+            "type": "boolean",
+            "value": true,
+            "description": "If true, show what missiles think they're going to hit next."
+        },
+        "MISSILE_SPEED": {
+            "type": "number",
+            "value": "0.50",
+            "description": "in pixels/frame",
+            "min": 0,
+            "max": 2,
+            "format": ".00",
+            "quantum": 0.01
+        },
+        "MAX_MISSILE_COUNT": {
+            "type": "number",
+            "value": "1",
+            "description": "how many missiles can be in flight simultaneously?",
+            "min": 0,
+            "max": 100,
+            "format": "",
+            "quantum": 1
+        }
+    },
     "screenshot_tag": "ostjam3"
 }
