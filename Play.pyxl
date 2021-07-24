@@ -52,7 +52,6 @@ def make_missile():
         shape: "rect",
         dir: missile_dir,
         vel: MISSILE_SPEED*missile_dir,
-        target_building: target_building,
     })
 def itor_missile_draw(m):
     // draw missile
@@ -74,13 +73,14 @@ def itor_missile_update(missile):
     if hit_explosion:
         push(explosions, make_explosion(missile.pos))
         return iterate.REMOVE        
-    // collide with target building
-    if overlaps(missile, missile.target_building, false):
-        missile.target_building.destroyed = true
-        push(explosions, make_explosion(missile.pos))
-        return iterate.REMOVE
+    // collide with buildings
+    for building in buildings:
+        if overlaps(missile, building, false):
+            building.destroyed = true
+            push(explosions, make_explosion(missile.pos))
+            return iterate.REMOVE
     // collide with ground
-    else if missile.pos.y ≥ GROUND_Y:
+    if missile.pos.y ≥ GROUND_Y:
         push(explosions, make_explosion(missile.pos))
         return iterate.REMOVE
 
