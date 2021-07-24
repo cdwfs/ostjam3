@@ -200,8 +200,7 @@ if joy.aa:
         current_portal = ∅
 
 // randomly spawn a new missile
-if ξ < 0.003:
-    todo("trace from new missile to all portals")
+if size(missiles) < MAX_MISSILE_COUNT and ξ < 0.003:
     push(missiles, make_missile())
 // Grow/prune explosions
 iterate(explosions, itor_explosion_update)
