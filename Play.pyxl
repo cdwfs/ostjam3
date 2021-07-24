@@ -5,6 +5,7 @@ const GROUND_Y = SCREEN_SIZE.y-16
 const MISSILE_SPEED = 0.5
 const EXPLOSION_DURATION = 120
 const EXPLOSION_MAX_RADIUS = 32
+const PORTAL_RADIUS = 16
 
 def make_building(pos):
   return make_entity({
@@ -83,9 +84,24 @@ def itor_missile_update(missile):
         push(explosions, make_explosion(missile.pos))
         return iterate.REMOVE
 
+def make_portal(pos):
+    return make_entity({
+        pos:pos,
+        z: 2,
+        shape:"disk",
+        name:"Portal",
+        radius: PORTAL_RADIUS,
+        size: PORTAL_RADIUS*xy(2,2),
+        buddy: nil
+    })
+def itor_portal_draw(portal):
+    draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: #48c, outline:#248})
+
 let explosions = []
 let buildings = []
 let missiles = []
+let portals = []
+let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
 
 enter
@@ -93,6 +109,8 @@ enter
 explosions = []
 buildings = []
 missiles = []
+portals = []
+current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
 
 // create building entities
@@ -106,10 +124,18 @@ frame
 cursor_pos.x = clamp(cursor_pos.x + joy.x, 0, SCREEN_SIZE.x-1)
 cursor_pos.y = clamp(cursor_pos.y + joy.y, 0, SCREEN_SIZE.y-1)
 if joy.aa:
-    push(explosions, make_explosion(cursor_pos))
+    //push(explosions, make_explosion(cursor_pos))
+    let portal = make_portal(cursor_pos)
+    if current_portal == ∅: // first in pair
+        current_portal = portal
+    else: // second in pair
+        todo("trace from all missiles to new portals")
+        push(portals, current_portal, portal)
+        current_portal = ∅
 
 // randomly spawn a new missile
 if ξ < 0.003:
+    todo("trace from new missile to all portals")
     push(missiles, make_missile())
 // Grow/prune explosions
 iterate(explosions, itor_explosion_update)
@@ -131,3 +157,8 @@ for building in buildings:
 iterate(explosions, itor_explosion_draw)
 // missiles
 iterate(missiles, itor_missile_draw)
+// portals
+iterate(portals, itor_portal_draw)
+if current_portal ≠ ∅:
+    todo("special draw for current portal")
+    itor_portal_draw(current_portal)
