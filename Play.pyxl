@@ -116,14 +116,15 @@ def itor_missile_update(missile):
             missile.is_in_portal = false
         
     // collide with explosions
-    let hit_explosion = false
-    for explosion in explosions:
-        if overlaps(missile, explosion, false):
-            hit_explosion = true
-            break
-    if hit_explosion:
-        push(explosions, make_explosion(missile.pos))
-        return iterate.REMOVE        
+    if not missile.is_in_portal:
+        let hit_explosion = false
+        for explosion in explosions:
+            if overlaps(missile, explosion, false):
+                hit_explosion = true
+                break
+        if hit_explosion:
+            push(explosions, make_explosion(missile.pos))
+            return iterate.REMOVE        
     // collide with buildings
     for building in buildings:
         if overlaps(missile, building, false):
