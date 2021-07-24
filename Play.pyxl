@@ -149,7 +149,7 @@ def itor_portal_draw(portal):
     if portal.buddy == ∅:
         draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: #0000, outline:#248})
     else:
-        draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: #0000, outline:#248})
+        draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: #48c, outline:#248})
 
 let explosions = []
 let buildings = []
