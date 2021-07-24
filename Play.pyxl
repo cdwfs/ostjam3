@@ -214,5 +214,4 @@ iterate(missiles, itor_missile_draw)
 // portals
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
-    todo("special draw for current portal")
     itor_portal_draw(current_portal)
