@@ -188,6 +188,8 @@ if joy.aa:
         // Trace from all missiles to new portals, to see if they're closer
         const new_portals = [current_portal, portal]
         for m in missiles:
+            if m.is_in_portal:
+                continue
             const len = if m.next_portal ≠ ∅ then magnitude(m.portal_entry_pos - m.pos) else infinity
             let ray = {pos:m.pos, dir:m.dir, length: len}
             const hit_portal = ray_intersect(ray, new_portals)
