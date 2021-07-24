@@ -16,7 +16,6 @@ def make_building(pos):
     })
 def itor_building_destroy(building):
     if building.destroyed:
-        building.pos = xy(-100,-100)
         return iterate.REMOVE
     
 def make_explosion(pos):
