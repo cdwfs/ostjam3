@@ -26,11 +26,6 @@
     "highscores": false,
     "description": "Description of your game in about 100 characters.",
     "constants": {
-        "DEBUG_DRAW_MISSILE_TARGETS": {
-            "type": "boolean",
-            "value": false,
-            "description": "If true, show what missiles think they're going to hit next."
-        },
         "MISSILE_SPEED": {
             "type": "number",
             "value": "0.50",
