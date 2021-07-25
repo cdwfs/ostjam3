@@ -24,9 +24,9 @@ const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 32
 const PORTAL_PUSH_AMOUNT = 0.15
 
 const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
-const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 100%}
-const SND_MISSILE_WARP = {sound:warp_sound, volume: 100%}
-const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 100%}
+const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 25%}
+const SND_MISSILE_WARP = {sound:warp_sound, volume: 25%}
+const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 25%}
 const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 100%}
 const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 100%}
 
