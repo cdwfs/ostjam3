@@ -22,6 +22,8 @@ const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
 const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 100%}
 const SND_MISSILE_WARP = {sound:warp_sound, volume: 100%}
 const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 100%}
+const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 100%}
+const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 100%}
 
 def enter_gameover_mode(data):
     set_mode(GameOver) because "All buildings are destroyed"
@@ -245,6 +247,8 @@ if joy.aa:
     let portal = make_portal(cursor_pos)
     if current_portal == ∅: // first in pair
         current_portal = portal
+        play_sound({pan: lerp(-100%, 100%, cursor_pos.x, 0, SCREEN_SIZE.x),
+            ...SND_PORTAL_PLACE1})
     else: // second in pair
         portal.buddy = current_portal
         current_portal.buddy = portal
@@ -257,6 +261,8 @@ if joy.aa:
         // add both portals to the master list
         push(portals, current_portal, portal)
         current_portal = ∅
+        play_sound({pan: lerp(-100%, 100%, cursor_pos.x, 0, SCREEN_SIZE.x),
+            ...SND_PORTAL_PLACE2})
 
 // randomly spawn a new missile
 if size(missiles) < MAX_MISSILE_COUNT and ξ < 0.003:
