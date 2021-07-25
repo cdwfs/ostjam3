@@ -18,6 +18,9 @@ const PORTAL_DRIFT_WAIT_MAX_FRAMES = 300
 const PORTAL_ANGLE_DRIFT_SPEED_MAX = 0.004 * π
 const PORTAL_ANGLE_DRIFT_SPEED_MIN = 0.003 * π
 
+def enter_gameover_mode(data):
+    set_mode(GameOver) because "All buildings are destroyed"
+
 def make_building(pos):
   return make_entity({
         pos: pos,
@@ -188,6 +191,7 @@ let missiles = []
 let portals = []
 let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
+let game_over_hook = nil
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -197,14 +201,13 @@ missiles = []
 portals = []
 current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
+game_over_hook = nil
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
 
 set_post_effects({bloom: 100%})
-
-song_start()
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -246,6 +249,10 @@ iterate(missiles, itor_missile_update)
 // Destroy any buildings that were hit by missiles
 iterate(buildings, itor_building_destroy)
 
+// Check for game over
+if size(buildings) == 0 and game_over_hook == nil:
+    game_over_hook = add_frame_hook(fade_out, enter_gameover_mode, 2*60, ∅, {})
+
 // Rendering
 // cursor
 draw_line({A:cursor_pos-xy(3,0), B:cursor_pos+xy(3,0), z:10, color:#f})
@@ -270,3 +277,8 @@ if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
 if DEBUG_MUSIC:
     bgm_draw_debug()
+
+leave
+────────────────────────────────────────────────────────────────────────
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())
