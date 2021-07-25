@@ -40,7 +40,11 @@
         "transDEAtoA_sound": "transDEAtoA.sound.json",
         "cancel_sound": "cancel.sound.json",
         "confirm_sound": "confirm.sound.json",
-        "select_sound": "select.sound.json"
+        "select_sound": "select.sound.json",
+        "explosion_sound": "explosion.sound.json",
+        "warp_sound": "warp.sound.json",
+        "warp_enter_sound": "warp_enter.sound.json",
+        "warp_exit_sound": "warp_exit.sound.json"
     },
     "version": 0,
     "min_players": 1,

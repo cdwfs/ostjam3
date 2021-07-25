@@ -18,6 +18,11 @@ const PORTAL_DRIFT_WAIT_MAX_FRAMES = 300
 const PORTAL_ANGLE_DRIFT_SPEED_MAX = 0.004 * π
 const PORTAL_ANGLE_DRIFT_SPEED_MIN = 0.003 * π
 
+const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
+const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 100%}
+const SND_MISSILE_WARP = {sound:warp_sound, volume: 100%}
+const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 100%}
+
 def enter_gameover_mode(data):
     set_mode(GameOver) because "All buildings are destroyed"
 
@@ -34,6 +39,9 @@ def itor_building_destroy(building):
         return iterate.REMOVE
     
 def make_explosion(pos):
+    play_sound({pitch: random(75%, 125%),
+        pan: lerp(-100%, 100%, pos.x, 0, SCREEN_SIZE.x),
+        ...SND_MISSILE_EXPLODE})
     return make_entity({
         pos: pos,
         size: xy(0,0),
@@ -72,6 +80,7 @@ def make_missile():
         vel: MISSILE_SPEED*missile_dir,
         portal: ∅,
         portal_enter_f: -1,
+        warp_sound: ∅,
     })
 def itor_missile_draw(m):
     // draw missile
@@ -91,11 +100,19 @@ def itor_missile_draw(m):
 def itor_missile_update(missile):
     // handle exiting the portal
     if missile.portal ≠ ∅:
+        const start_pan = lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x)
+        const end_pan = lerp(-100%, 100%, missile.portal.buddy.pos.x, 0, SCREEN_SIZE.x)
+        set_pan(missile.warp_sound, lerp(start_pan, end_pan, mode_frames,
+            missile.portal_enter_f, missile.portal_enter_f+WARP_DURATION))
         if mode_frames - missile.portal_enter_f ≥ WARP_DURATION:
             missile.pos = missile.portal.buddy.pos + (missile.portal.buddy.radius+1) * missile.dir
             missile.trail_start_pos = clone(missile.pos)
             missile.portal = ∅
             missile.portal_enter_f = -1
+            missile.warp_sound = ∅
+            play_sound({pitch: random(75%, 125%),
+                pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_EXIT_PORTAL})
         else:
             return iterate.CONTINUE // no further processing for missiles mid-warp
     
@@ -106,6 +123,12 @@ def itor_missile_update(missile):
             push(missile.trail_lines, {A:clone(missile.trail_start_pos), B:clone(missile.pos)})
             missile.portal = portal
             missile.portal_enter_f = mode_frames
+            play_sound({pitch: random(75%, 125%),
+                pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_ENTER_PORTAL})
+            missile.warp_sound = play_sound({pitch: random(75%, 125%),
+                pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_WARP})
             return iterate.CONTINUE // skip remaining checks when entering a portal        
 
     // collide with explosions
