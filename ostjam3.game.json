@@ -44,7 +44,9 @@
         "explosion_sound": "explosion.sound.json",
         "warp_sound": "warp.sound.json",
         "warp_enter_sound": "warp_enter.sound.json",
-        "warp_exit_sound": "warp_exit.sound.json"
+        "warp_exit_sound": "warp_exit.sound.json",
+        "portal1_sound": "portal1.sound.json",
+        "portal2_sound": "portal2.sound.json"
     },
     "version": 0,
     "min_players": 1,
