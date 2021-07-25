@@ -155,6 +155,8 @@ cursor_pos = 50% SCREEN_SIZE
 // create building entities
 for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
+    
+play_sound({sound: music_loop1_sound, loop: true})
 
 frame
 ────────────────────────────────────────────────────────────────────────

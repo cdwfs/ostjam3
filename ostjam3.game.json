@@ -13,7 +13,8 @@
     "assets": {
         "font": "quad://fonts/deja-8.font.json",
         "shapes": "quad://sprites/shapes-32x32.sprite.json",
-        "prototype_blocks_sprite": "prototype-blocks.sprite.json"
+        "prototype_blocks_sprite": "prototype-blocks.sprite.json",
+        "music_loop1_sound": "music_loop1.sound.json"
     },
     "version": 0,
     "min_players": 1,
