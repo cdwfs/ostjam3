@@ -2,21 +2,26 @@ Play
 ════════════════════════════════════════════════════════════════════════
 
 const GROUND_Y = SCREEN_SIZE.y-16
-const EXPLOSION_DURATION = 90
+//const EXPLOSION_DURATION = 90
 const EXPLOSION_MAX_RADIUS = 24
 const PORTAL_RADIUS = 16
 const WARP_DURATION = 45
 const CURSOR_SPEED = 2.5
 const WARP_CONNECTION_COLOR_BREATHE_FRAMES = 120
 const WARP_CONNECTION_OFFSET_BREATHE_FRAMES = 70
-const WARP_CONNECTION_MAX_OPACITY = 0.3
+const WARP_CONNECTION_MAX_OPACITY = 0.4
 const PORTAL_LIFETIME_FRAMES = 1800
-const PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES = 400
+const PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES = 350
 const PORTAL_DRIFT_WAIT_INITIAL_MIN_FRAMES = 150
-const PORTAL_DRIFT_WAIT_MIN_FRAMES = 150
-const PORTAL_DRIFT_WAIT_MAX_FRAMES = 300
+const PORTAL_DRIFT_WAIT_MIN_FRAMES = 100
+const PORTAL_DRIFT_WAIT_MAX_FRAMES = 200
 const PORTAL_ANGLE_DRIFT_SPEED_MAX = 0.004 * π
 const PORTAL_ANGLE_DRIFT_SPEED_MIN = 0.003 * π
+const BUILDING_PUSH_RADIUS_INNER = 16
+const BUILDING_PUSH_RADIUS_OUTER = 48
+const BUILDING_PUSH_AMOUNT = 0.2
+const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 32
+const PORTAL_PUSH_AMOUNT = 0.15
 
 def make_building(pos):
   return make_entity({
@@ -66,7 +71,6 @@ def make_missile():
         dir: missile_dir,
         trail_start_pos: missile_pos,
         trail_lines: [],
-        vel: MISSILE_SPEED*missile_dir,
         portal: ∅,
         portal_enter_f: -1,
     })
@@ -89,6 +93,7 @@ def itor_missile_update(missile):
     // handle exiting the portal
     if missile.portal ≠ ∅:
         if mode_frames - missile.portal_enter_f ≥ WARP_DURATION:
+            missile.dir = angle_to_xy( missile.portal.buddy.anchorTheta )
             missile.pos = missile.portal.buddy.pos + (missile.portal.buddy.radius+1) * missile.dir
             missile.trail_start_pos = clone(missile.pos)
             missile.portal = ∅
@@ -96,7 +101,7 @@ def itor_missile_update(missile):
         else:
             return iterate.CONTINUE // no further processing for missiles mid-warp
     
-    missile.pos += missile.vel
+    missile.pos += MISSILE_SPEED * missile.dir
     // collide with portals
     for portal in portals:
         if overlaps(missile.pos, portal):
@@ -126,6 +131,9 @@ def itor_missile_update(missile):
     if missile.pos.y ≥ GROUND_Y:
         push(explosions, make_explosion(missile.pos))
         return iterate.REMOVE
+    // disappear on edge of screen
+    if ( missile.pos.x < 0 ) or ( missile.pos.x > SCREEN_SIZE.x ) or ( missile.pos.y < -max(EXPLOSION_MAX_RADIUS, PORTAL_RADIUS) ):
+        return iterate.REMOVE
 
 def make_portal(pos):
     return make_entity({
@@ -138,37 +146,73 @@ def make_portal(pos):
         anchorTheta: -0.5 * π,
         anchorTarget: lerp( -π, π, ξ ),
         anchorDriftSpeed: lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ ),
-        anchorDriftWait: lerp( PORTAL_DRIFT_WAIT_INITIAL_MIN_FRAMES, PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES, ξ ),
+        driftWait: lerp( PORTAL_DRIFT_WAIT_INITIAL_MIN_FRAMES, PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES, ξ ),
+        positionDriftCenter: random_point_in_band_from_pos( pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y ),
         doesDrift: false,
+        isCollapsing: false,
         buddy: ∅,
         spawn_f: mode_frames,
     })
 def itor_portal_update(portal):
-    //First do anchor drift
     if portal.buddy ≠ ∅:
-        if portal.anchorTarget == portal.anchorTheta:
-            portal.anchorTarget = lerp( -π, π, ξ )
-            portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
-            portal.anchorDriftWait = lerp( PORTAL_DRIFT_WAIT_MIN_FRAMES, PORTAL_DRIFT_WAIT_MAX_FRAMES, ξ )
+        //If we do drift, either count down to our next drift, or start modifying our angle and position.
         if portal.doesDrift:
-            if portal.anchorDriftWait > 0:
-                --portal.anchorDriftWait
+            if portal.driftWait > 0:
+                --portal.driftWait
             else:
                 const angleBetween = loop( portal.anchorTarget - portal.anchorTheta, -π, π)
                 portal.anchorTheta = lerp_angle( portal.anchorTheta, portal.anchorTarget, clamp( portal.anchorDriftSpeed / max( 0.001, abs( angleBetween ) ), 0, 1 ) )
-    //Then shrink portals if they're linked
-    if portal.buddy ≠ ∅:
-        portal.radius = lerp(PORTAL_RADIUS, 0, mode_frames, portal.spawn_f, portal.spawn_f + PORTAL_LIFETIME_FRAMES)
+                push_portal_from( portal, portal.positionDriftCenter, PORTAL_POS_DRIFT_PUSH_RANGE.x, PORTAL_POS_DRIFT_PUSH_RANGE.y, PORTAL_POS_DRIFT_PUSH_POWER )
+        //If we've reached both our angle and position goals, consider this drift over, set new values, and pass the baton to our buddy.
+        if ( portal.anchorTarget == portal.anchorTheta ) and ( magnitude( portal.pos - portal.positionDriftCenter ) > PORTAL_POS_DRIFT_PUSH_THRESHOLD ):
+            portal.anchorTarget = lerp( -π, π, ξ )
+            portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
+            portal.positionDriftCenter = random_point_in_band_from_pos( portal.pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y )
+            portal.driftWait = lerp( PORTAL_DRIFT_WAIT_FRAMES.x, PORTAL_DRIFT_WAIT_FRAMES.y, ξ )
+            portal.doesDrift = not portal.doesDrift
+            portal.buddy.doesDrift = not portal.buddy.doesDrift
+        
+    //Then do position pushes from buildings
+    for building in buildings:
+        push_portal_from( portal, building.pos, BUILDING_PUSH_RADIUS_INNER, BUILDING_PUSH_RADIUS_OUTER, BUILDING_PUSH_AMOUNT )
+    //Push away from other portals
+    for otherPortal in portals:
+        if otherPortal ≠ portal:
+            push_portal_from( portal, otherPortal.pos, otherPortal.radius, otherPortal.radius + PORTAL_PUSH_RADIUS_ADDITION_OUTER, PORTAL_PUSH_AMOUNT )
+    //Shrink portals if they're collapsing
+    if portal.isCollapsing:
+        portal.radius = max( 0, portal.radius - PORTAL_COLLAPSE_SPEED_PER_FRAME )
         if portal.radius == 0:
+            if portal.buddy ≠ ∅:
+                portal.buddy.buddy = ∅ 
+            portal.buddy = ∅ 
             return iterate.REMOVE
         portal.size = portal.radius * xy(2,2)
+    //Check for situations that would cause the portal to collapse (eg hitting ground or edge of screen)
+    if ( portal.pos.y ≥ GROUND_Y ) or ( portal.pos.x < 0 ) or ( portal.pos.x > SCREEN_SIZE.x ) or ( portal.pos.y < 0 ):
+        portal.isCollapsing = true
+        if portal.buddy ≠ ∅:
+            portal.buddy.isCollapsing = true
+
+def push_portal_from(portal, pushSource, pushInnerRadius, pushOuterRadius, pushAmountAtInner):
+    const vecToPortalFromSource = portal.pos - pushSource
+    const distanceBetweenPortalAndSource = magnitude( vecToPortalFromSource )
+    if ( distanceBetweenPortalAndSource > pushOuterRadius ) or ( portal.pos == pushSource ):
+        return
+    const pushPower = lerp( pushAmountAtInner, 0, max( distanceBetweenPortalAndSource - pushInnerRadius, 0 ) / ( pushOuterRadius - pushInnerRadius ) )
+    portal.pos += pushPower * vecToPortalFromSource / distanceBetweenPortalAndSource
+
+def random_point_in_band_from_pos( pos, radiusInner, radiusOuter ):
+    return pos + ( lerp( radiusInner, radiusOuter, ξ ) * angle_to_xy( lerp( -π, π, ξ ) ) )
+
 def itor_portal_draw(portal):
+    //debug to see point of drift - draw_disk({pos:portal.positionDriftCenter, z:portal.z + 2, radius:4, color: #f00, outline:#f00})
     if portal.buddy == ∅:
         draw_disk({pos:portal.pos, z:portal.z, radius:PORTAL_RADIUS, color: #0000, outline:#248})
     else:
         //While the portal is changing its output direction, show it in red
-        draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: if portal.anchorDriftWait > 0 then #48c else #c44, 
-            outline: if portal.anchorDriftWait > 0 then #248 else #822})
+        draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: if portal.driftWait > 0 then #48c else #c44, 
+            outline: if portal.driftWait > 0 then #248 else #822})
         //We then make a constant line effect that zips between the two portals
         const edge_offset_mag = cos( 0.5 * π * loop( game_frames / WARP_CONNECTION_OFFSET_BREATHE_FRAMES ) )
         const grey_to_use = WARP_CONNECTION_MAX_OPACITY * edge_offset_mag
