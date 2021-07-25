@@ -108,6 +108,7 @@ def itor_missile_update(missile):
     for building in buildings:
         if overlaps(missile, building, false):
             building.destroyed = true
+            todo("buildings should test for overlap with explosions and explode themselves")
             push(explosions, make_explosion(missile.pos))
             return iterate.REMOVE
     // collide with ground
@@ -202,6 +203,7 @@ draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:
 // buildings
 for building in buildings:
     draw_entity(building)
+    todo("Draw occasional chat messages from buildings in a tiny font")
 // explosions
 iterate(explosions, itor_explosion_draw)
 // missiles
