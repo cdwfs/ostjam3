@@ -160,11 +160,13 @@ for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
 
 set_post_effects({bloom: 100%})
-    
-play_sound({sound: music_loop1_sound, loop: true})
+
+song_start()
 
 frame
 ────────────────────────────────────────────────────────────────────────
+
+song_update()
 
 // handle input
 cursor_pos.x = clamp(cursor_pos.x + joy.x, 0, SCREEN_SIZE.x-1)
@@ -218,3 +220,4 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
+//bgm_draw_debug()
