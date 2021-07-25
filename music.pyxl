@@ -5,8 +5,6 @@ const BGM_BEATS_PER_MINUTE = 60 / (2*BGM_SECONDS_PER_BEAT)
 const BGM_SECONDS_PER_MEASURE = BGM_SECONDS_PER_BEAT * BGM_BEATS_PER_MEASURE
 const BGM_FRAMES_PER_MEASURE = round(BGM_BEATS_PER_MEASURE * BGM_FRAMES_PER_BEAT)
 
-const SND_MUSIC_INGAME = {sound:music_loop1_sound, volume:70%, loop:true}
-
 let bgm_now = -1 // elapsed time the music has been playing, in seconds.
 let bgm_now_f = -1 // elapsed time the music has been playing, in frames.
 let bgm_beat = -1 // whole-number beat
