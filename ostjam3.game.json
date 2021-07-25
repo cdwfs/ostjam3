@@ -32,7 +32,7 @@
         },
         "MISSILE_SPEED": {
             "type": "number",
-            "value": "0.50",
+            "value": "0.30",
             "description": "in pixels/frame",
             "min": 0,
             "max": 2,
