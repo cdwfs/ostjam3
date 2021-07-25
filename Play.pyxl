@@ -268,4 +268,5 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
-//bgm_draw_debug()
+if DEBUG_MUSIC:
+    bgm_draw_debug()

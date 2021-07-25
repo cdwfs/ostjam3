@@ -60,6 +60,11 @@
             "max": 100,
             "format": "",
             "quantum": 1
+        },
+        "DEBUG_MUSIC": {
+            "type": "boolean",
+            "value": false,
+            "description": "Enable music playback debugging. In this mode, pushing the (F) button will advance to the next song clip."
         }
     },
     "screenshot_tag": "ostjam3"
