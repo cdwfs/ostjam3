@@ -23,6 +23,16 @@ const BUILDING_PUSH_AMOUNT = 0.2
 const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 32
 const PORTAL_PUSH_AMOUNT = 0.15
 
+const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
+const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 100%}
+const SND_MISSILE_WARP = {sound:warp_sound, volume: 100%}
+const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 100%}
+const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 100%}
+const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 100%}
+
+def enter_gameover_mode(data):
+    set_mode(GameOver) because "All buildings are destroyed"
+
 def make_building(pos):
   return make_entity({
         pos: pos,
@@ -36,6 +46,9 @@ def itor_building_destroy(building):
         return iterate.REMOVE
     
 def make_explosion(pos):
+    play_sound({pitch: random(75%, 125%),
+        pan: lerp(-100%, 100%, pos.x, 0, SCREEN_SIZE.x),
+        ...SND_MISSILE_EXPLODE})
     return make_entity({
         pos: pos,
         size: xy(0,0),
@@ -73,6 +86,7 @@ def make_missile():
         trail_lines: [],
         portal: ∅,
         portal_enter_f: -1,
+        warp_sound: ∅,
     })
 def itor_missile_draw(m):
     // draw missile
@@ -92,12 +106,20 @@ def itor_missile_draw(m):
 def itor_missile_update(missile):
     // handle exiting the portal
     if missile.portal ≠ ∅:
+        const start_pan = lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x)
+        const end_pan = lerp(-100%, 100%, missile.portal.buddy.pos.x, 0, SCREEN_SIZE.x)
+        set_pan(missile.warp_sound, lerp(start_pan, end_pan, mode_frames,
+            missile.portal_enter_f, missile.portal_enter_f+WARP_DURATION))
         if mode_frames - missile.portal_enter_f ≥ WARP_DURATION:
             missile.dir = angle_to_xy( missile.portal.buddy.anchorTheta )
             missile.pos = missile.portal.buddy.pos + (missile.portal.buddy.radius+1) * missile.dir
             missile.trail_start_pos = clone(missile.pos)
             missile.portal = ∅
             missile.portal_enter_f = -1
+            missile.warp_sound = ∅
+            play_sound({pitch: random(75%, 125%),
+                pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_EXIT_PORTAL})
         else:
             return iterate.CONTINUE // no further processing for missiles mid-warp
     
@@ -108,6 +130,12 @@ def itor_missile_update(missile):
             push(missile.trail_lines, {A:clone(missile.trail_start_pos), B:clone(missile.pos)})
             missile.portal = portal
             missile.portal_enter_f = mode_frames
+            play_sound({pitch: random(75%, 125%),
+                pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_ENTER_PORTAL})
+            missile.warp_sound = play_sound({pitch: random(75%, 125%),
+                pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_WARP})
             return iterate.CONTINUE // skip remaining checks when entering a portal        
 
     // collide with explosions
@@ -232,6 +260,7 @@ let missiles = []
 let portals = []
 let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
+let game_over_hook = nil
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -241,14 +270,13 @@ missiles = []
 portals = []
 current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
+game_over_hook = nil
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
 
 set_post_effects({bloom: 100%})
-
-song_start()
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -263,6 +291,8 @@ if joy.aa:
     let portal = make_portal(cursor_pos)
     if current_portal == ∅: // first in pair
         current_portal = portal
+        play_sound({pan: lerp(-100%, 100%, cursor_pos.x, 0, SCREEN_SIZE.x),
+            ...SND_PORTAL_PLACE1})
     else: // second in pair
         portal.buddy = current_portal
         current_portal.buddy = portal
@@ -275,6 +305,8 @@ if joy.aa:
         // add both portals to the master list
         push(portals, current_portal, portal)
         current_portal = ∅
+        play_sound({pan: lerp(-100%, 100%, cursor_pos.x, 0, SCREEN_SIZE.x),
+            ...SND_PORTAL_PLACE2})
 
 // randomly spawn a new missile
 if size(missiles) < MAX_MISSILE_COUNT and ξ < 0.003:
@@ -289,6 +321,10 @@ iterate(portals, itor_portal_update)
 iterate(missiles, itor_missile_update)
 // Destroy any buildings that were hit by missiles
 iterate(buildings, itor_building_destroy)
+
+// Check for game over
+if size(buildings) == 0 and game_over_hook == nil:
+    game_over_hook = add_frame_hook(fade_out, enter_gameover_mode, 2*60, ∅, {})
 
 // Rendering
 // cursor
@@ -312,4 +348,10 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
-//bgm_draw_debug()
+if DEBUG_MUSIC:
+    bgm_draw_debug()
+
+leave
+────────────────────────────────────────────────────────────────────────
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())

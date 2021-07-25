@@ -5,12 +5,17 @@
     "license": "CC0/Public Domain (Replace with your own license)",
     "packages": [],
     "scripts": [
-        "music.pyxl"
+        "music.pyxl",
+        "globals.pyxl"
     ],
     "modes": [
-        "Play"
+        "Play",
+        "Menu",
+        "Credits",
+        "HowToPlay",
+        "GameOver"
     ],
-    "start_mode": "Play",
+    "start_mode": "Menu",
     "docs": [],
     "assets": {
         "font": "quad://fonts/deja-8.font.json",
@@ -32,7 +37,14 @@
         "transDEA_sound": "transDEA.sound.json",
         "transEIFBC_sound": "transEIFBC.sound.json",
         "transFHI_sound": "transFHI.sound.json",
-        "transDEAtoA_sound": "transDEAtoA.sound.json"
+        "transDEAtoA_sound": "transDEAtoA.sound.json",
+        "cancel_sound": "cancel.sound.json",
+        "confirm_sound": "confirm.sound.json",
+        "select_sound": "select.sound.json",
+        "explosion_sound": "explosion.sound.json",
+        "warp_sound": "warp.sound.json",
+        "warp_enter_sound": "warp_enter.sound.json",
+        "warp_exit_sound": "warp_exit.sound.json"
     },
     "version": 0,
     "min_players": 1,
@@ -162,6 +174,11 @@
             },
             "format": "",
             "quantum": 0
+		},
+        "DEBUG_MUSIC": {
+            "type": "boolean",
+            "value": false,
+            "description": "Enable music playback debugging. In this mode, pushing the (F) button will advance to the next song clip."
         }
     },
     "screenshot_tag": "ostjam3"

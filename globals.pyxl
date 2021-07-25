@@ -1,0 +1,11 @@
+const SND_MENU_MOVE = {sound:select_sound, volume: 100%}
+const SND_MENU_ACCEPT = {sound:confirm_sound, volume: 100%}
+const SND_MENU_BACK = {sound:cancel_sound, volume: 100%}
+
+// Used to fade the screen to black during a mode transition
+def fade_out(frames_left, total_frames, data):
+    let t = 1-(total_frames - frames_left) / total_frames
+    set_post_effects({
+        color: rgb(t,t,t),
+        blend_mode: "multiply"
+        })
