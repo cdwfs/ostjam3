@@ -53,6 +53,8 @@ def itor_explosion_update(e):
     
 def make_missile():
     const target_building = random_value(buildings)
+    if target_building == ∅:
+        return // no buildings left to shoot at
     // spawn far enough off-screen to ensure w don't spawn inside a portal or explosion
     const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), -max(EXPLOSION_MAX_RADIUS, PORTAL_RADIUS))
     const missile_dir = direction(target_building.pos - missile_pos)
@@ -117,6 +119,7 @@ def itor_missile_update(missile):
     for building in buildings:
         if overlaps(missile, building, false):
             building.destroyed = true
+            todo("buildings should test for overlap with explosions and explode themselves")
             push(explosions, make_explosion(missile.pos))
             return iterate.REMOVE
     // collide with ground
@@ -198,11 +201,15 @@ cursor_pos = 50% SCREEN_SIZE
 // create building entities
 for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
-    
-play_sound({sound: music_loop1_sound, loop: true})
+
+set_post_effects({bloom: 100%})
+
+song_start()
 
 frame
 ────────────────────────────────────────────────────────────────────────
+
+song_update()
 
 // handle input
 cursor_pos.x = clamp(cursor_pos.x + (CURSOR_SPEED * joy.x), 0, SCREEN_SIZE.x-1)
@@ -227,7 +234,9 @@ if joy.aa:
 
 // randomly spawn a new missile
 if size(missiles) < MAX_MISSILE_COUNT and ξ < 0.003:
-    push(missiles, make_missile())
+    const missile = make_missile()
+    if missile ≠ ∅:
+        push(missiles, missile)
 // Grow/prune explosions
 iterate(explosions, itor_explosion_update)
 // Shrink/prune portals
@@ -242,10 +251,15 @@ iterate(buildings, itor_building_destroy)
 draw_line({A:cursor_pos-xy(3,0), B:cursor_pos+xy(3,0), z:10, color:#f})
 draw_line({A:cursor_pos-xy(0,3), B:cursor_pos+xy(0,3), z:10, color:#f})
 // ground
-draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:#242})
+//draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:#242})
+for GROUND_Y ≤ y < SCREEN_SIZE.y:
+    const iy = y - GROUND_Y
+    draw_map_span(xy(0,y), xy(SCREEN_SIZE.x,0), ground_map,
+        xy((2*iy) + mode_frames/2,2*iy) / ground_map.sprite_size, xy(192-(2*iy) + mode_frames/2,2*iy) / ground_map.sprite_size)
 // buildings
 for building in buildings:
     draw_entity(building)
+    todo("Draw occasional chat messages from buildings in a tiny font")
 // explosions
 iterate(explosions, itor_explosion_draw)
 // missiles
@@ -254,3 +268,4 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
+//bgm_draw_debug()

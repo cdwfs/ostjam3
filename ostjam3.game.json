@@ -4,7 +4,9 @@
     "copyright": "©2021 Your Name Here",
     "license": "CC0/Public Domain (Replace with your own license)",
     "packages": [],
-    "scripts": [],
+    "scripts": [
+        "music.pyxl"
+    ],
     "modes": [
         "Play"
     ],
@@ -14,7 +16,23 @@
         "font": "quad://fonts/deja-8.font.json",
         "shapes": "quad://sprites/shapes-32x32.sprite.json",
         "prototype_blocks_sprite": "prototype-blocks.sprite.json",
-        "music_loop1_sound": "music_loop1.sound.json"
+        "ground_map": "ground.map.json",
+        "loopA_sound": "loopA.sound.json",
+        "loopE_sound": "loopE.sound.json",
+        "loop0_sound": "loop0.sound.json",
+        "trans0toA_sound": "trans0toA.sound.json",
+        "transSilenceTo0_sound": "transSilenceTo0.sound.json",
+        "loopB_sound": "loopB.sound.json",
+        "loopC_sound": "loopC.sound.json",
+        "transAtoB_sound": "transAtoB.sound.json",
+        "transBtoC_sound": "transBtoC.sound.json",
+        "loopF_sound": "loopF.sound.json",
+        "loopH_sound": "loopH.sound.json",
+        "transCtoD_sound": "transCtoD.sound.json",
+        "transDEA_sound": "transDEA.sound.json",
+        "transEIFBC_sound": "transEIFBC.sound.json",
+        "transFHI_sound": "transFHI.sound.json",
+        "transDEAtoA_sound": "transDEAtoA.sound.json"
     },
     "version": 0,
     "min_players": 1,
@@ -25,11 +43,6 @@
     "highscores": false,
     "description": "Description of your game in about 100 characters.",
     "constants": {
-        "DEBUG_DRAW_MISSILE_TARGETS": {
-            "type": "boolean",
-            "value": false,
-            "description": "If true, show what missiles think they're going to hit next."
-        },
         "MISSILE_SPEED": {
             "type": "number",
             "value": "0.30",
