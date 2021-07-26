@@ -182,23 +182,23 @@ def make_portal(pos):
         spawn_f: mode_frames,
     })
 def itor_portal_update(portal):
-    if portal.buddy ≠ ∅:
-        //If we do drift, either count down to our next drift, or start modifying our angle and position.
-        if portal.doesDrift:
-            if portal.driftWait > 0:
-                --portal.driftWait
-            else:
-                const angleBetween = loop( portal.anchorTarget - portal.anchorTheta, -π, π)
-                portal.anchorTheta = lerp_angle( portal.anchorTheta, portal.anchorTarget, clamp( portal.anchorDriftSpeed / max( 0.001, abs( angleBetween ) ), 0, 1 ) )
-                push_portal_from( portal, portal.positionDriftCenter, PORTAL_POS_DRIFT_PUSH_RANGE.x, PORTAL_POS_DRIFT_PUSH_RANGE.y, PORTAL_POS_DRIFT_PUSH_POWER )
-        //If we've reached both our angle and position goals, consider this drift over, set new values, and pass the baton to our buddy.
-        if ( portal.anchorTarget == portal.anchorTheta ) and ( magnitude( portal.pos - portal.positionDriftCenter ) > PORTAL_POS_DRIFT_PUSH_THRESHOLD ):
-            portal.anchorTarget = lerp( -π, π, ξ )
-            portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
-            portal.positionDriftCenter = random_point_in_band_from_pos( portal.pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y )
-            portal.driftWait = lerp( PORTAL_DRIFT_WAIT_FRAMES.x, PORTAL_DRIFT_WAIT_FRAMES.y, ξ )
-            portal.doesDrift = not portal.doesDrift
-            portal.buddy.doesDrift = not portal.buddy.doesDrift
+    assert(portal.buddy ≠ 0, "All portals in the portal[] list must have a buddy")
+    //If we do drift, either count down to our next drift, or start modifying our angle and position.
+    if portal.doesDrift:
+        if portal.driftWait > 0:
+            --portal.driftWait
+        else:
+            const angleBetween = loop( portal.anchorTarget - portal.anchorTheta, -π, π)
+            portal.anchorTheta = lerp_angle( portal.anchorTheta, portal.anchorTarget, clamp( portal.anchorDriftSpeed / max( 0.001, abs( angleBetween ) ), 0, 1 ) )
+            push_portal_from( portal, portal.positionDriftCenter, PORTAL_POS_DRIFT_PUSH_RANGE.x, PORTAL_POS_DRIFT_PUSH_RANGE.y, PORTAL_POS_DRIFT_PUSH_POWER )
+    //If we've reached both our angle and position goals, consider this drift over, set new values, and pass the baton to our buddy.
+    if ( portal.anchorTarget == portal.anchorTheta ) and ( magnitude( portal.pos - portal.positionDriftCenter ) > PORTAL_POS_DRIFT_PUSH_THRESHOLD ):
+        portal.anchorTarget = lerp( -π, π, ξ )
+        portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
+        portal.positionDriftCenter = random_point_in_band_from_pos( portal.pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y )
+        portal.driftWait = lerp( PORTAL_DRIFT_WAIT_FRAMES.x, PORTAL_DRIFT_WAIT_FRAMES.y, ξ )
+        portal.doesDrift = not portal.doesDrift
+        portal.buddy.doesDrift = not portal.buddy.doesDrift
         
     //Then do position pushes from buildings
     for building in buildings:
@@ -216,8 +216,7 @@ def itor_portal_update(portal):
     //Check for situations that would cause the portal to collapse (eg hitting ground or edge of screen)
     if ( portal.pos.y ≥ GROUND_Y ) or ( portal.pos.x < 0 ) or ( portal.pos.x > SCREEN_SIZE.x ) or ( portal.pos.y < 0 ):
         portal.isCollapsing = true
-        if portal.buddy ≠ ∅:
-            portal.buddy.isCollapsing = true
+        portal.buddy.isCollapsing = true
 
 def push_portal_from(portal, pushSource, pushInnerRadius, pushOuterRadius, pushAmountAtInner):
     const vecToPortalFromSource = portal.pos - pushSource
@@ -232,6 +231,7 @@ def random_point_in_band_from_pos( pos, radiusInner, radiusOuter ):
 
 def itor_portal_draw(portal):
     //debug to see point of drift - draw_disk({pos:portal.positionDriftCenter, z:portal.z + 2, radius:4, color: #f00, outline:#f00})
+    // A portal with an unplaced buddy will still be passed to this function, so we must check for null buddy here.
     if portal.buddy == ∅:
         draw_disk({pos:portal.pos, z:portal.z, radius:PORTAL_RADIUS, color: #0000, outline:#248})
     else:
