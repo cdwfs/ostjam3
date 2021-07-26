@@ -211,9 +211,6 @@ def itor_portal_update(portal):
     if portal.isCollapsing:
         portal.radius = max( 0, portal.radius - PORTAL_COLLAPSE_SPEED_PER_FRAME )
         if portal.radius == 0:
-            if portal.buddy ≠ ∅:
-                portal.buddy.buddy = ∅ 
-            portal.buddy = ∅ 
             return iterate.REMOVE
         portal.size = portal.radius * xy(2,2)
     //Check for situations that would cause the portal to collapse (eg hitting ground or edge of screen)
