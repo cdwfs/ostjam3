@@ -18,7 +18,6 @@
     "start_mode": "Menu",
     "docs": [],
     "assets": {
-        "font": "quad://fonts/deja-8.font.json",
         "shapes": "quad://sprites/shapes-32x32.sprite.json",
         "prototype_blocks_sprite": "prototype-blocks.sprite.json",
         "ground_map": "ground.map.json",
@@ -46,7 +45,8 @@
         "warp_enter_sound": "warp_enter.sound.json",
         "warp_exit_sound": "warp_exit.sound.json",
         "portal1_sound": "portal1.sound.json",
-        "portal2_sound": "portal2.sound.json"
+        "portal2_sound": "portal2.sound.json",
+        "font": "quad://fonts/hauer-12.font.json",
     },
     "version": 0,
     "min_players": 1,
