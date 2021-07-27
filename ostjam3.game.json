@@ -6,7 +6,8 @@
     "packages": [],
     "scripts": [
         "music.pyxl",
-        "globals.pyxl"
+        "globals.pyxl",
+        "balloon.pyxl"
     ],
     "modes": [
         "Play",
@@ -47,6 +48,8 @@
         "portal1_sound": "portal1.sound.json",
         "portal2_sound": "portal2.sound.json",
         "font": "quad://fonts/hauer-12.font.json",
+        "tiny_font": "quad://fonts/nano-4.font.json",
+        "beep_sound": "beep.sound.json"
     },
     "version": 0,
     "min_players": 1,

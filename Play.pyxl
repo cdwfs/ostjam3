@@ -336,7 +336,8 @@ for GROUND_Y ≤ y < SCREEN_SIZE.y:
 // buildings
 for building in buildings:
     draw_entity(building)
-    todo("Draw occasional chat messages from buildings in a tiny font")
+    // ignore this TODO; messages are illegible with bloom enabled
+    //todo("Draw occasional chat messages from buildings in a tiny font")
 // explosions
 iterate(explosions, itor_explosion_draw)
 // missiles

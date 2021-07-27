@@ -1,0 +1,60 @@
+// Draws a cartoon-style word balloon with a message in it.
+//   msg: The message string. Can contain newlines; the balloon will size itself to fit.
+//   pos: The position where the balloon should originate from. Also used as the pan source for beep_sound.
+//   font: The font to use to render the message
+//   speed: How fast the message reveals itself. Specified in frames per character (higher value = slower reveal).
+//          If speed=0, the whole message appears immediately.
+//   z: The z layer at which the balloon should be rendered.
+//   delay_frames: How many frames should the full message be displayed for at full opacity. If 0, fade-out begins
+//                 as soon as the whole message is revealed.
+//   fade_frames: After the message is fully revealed (plus any delay_frames, if provided), the message will fade
+//                out over this many frames. If 0, the message will fade out instantly.
+//   sound: If non-∅, this sound is played as each new character is revealed. If speed is 0, this parameter is ignored.
+//          The sound's panning is set based on pos.x. Start time and volume are randomized. TODO: this should be
+//          made more flexible.
+def draw_msg_balloon(msg, pos, font, speed default 5, z default 0, delay_frames default 60, fade_frames default 120, sound default nil):
+    if is_object(msg):
+        let args = msg
+        draw_msg_balloon(args.msg, args.pos, args.font, args.speed, args.z, args.delay_frames, args.fade_frames, args.sound)
+        return
+    
+    def draw_msg_balloon_callback(frames_left, total_frames, data):
+        const msg = data.msg
+        const pos = data.pos
+        const start_f = data.start_f
+        const fade_frames = data.fade_frames
+        const text_z = data.z
+        const msg_font = data.font
+        const frames_per_glyph = data.speed
+        const beep_sound = data.sound
+        const text_pos = pos + xy(1,5)
+        const a = if fade_frames > 0 then lerp(100%, 0%, frames_left, fade_frames, 0) else 100%
+        // Draw invisible text, to get the bounds of the full message, behind the balloon
+        let bounds = draw_text({text:msg, pos:text_pos, font:msg_font, y_align:"top", color:#0000, z:text_z-1})
+        // beep for each character
+        const frames = mode_frames-start_f
+        const tsize = if frames_per_glyph > 0 then max(0, frames/frames_per_glyph) else nil
+        if beep_sound ≠ ∅ and frames >= 0 and tsize ≤ size(msg) and (frames mod frames_per_glyph == 0):
+            play_sound({sound:beep_sound, volume:random(5%, 10%), time:random(0, 0.5*beep_sound.duration),
+                pan: lerp(-90%, 90%, pos.x, 0, SCREEN_SIZE.x)})
+        // draw balloon
+        bounds.size += 2*xy(1,1)
+        bounds.size.x = max(bounds.size.x, 16)
+        draw_rect({pos:bounds.pos, size:bounds.size + xy(2,2), z:text_z, color:rgba(1,1,1,a)})
+        draw_tri({A:pos+xy(3,3), B:pos+xy(6,3), C:pos, color:rgba(1,1,1,a), z:text_z})
+        // Draw text again with gradual reveal
+        draw_text({text:msg, pos:text_pos, font:msg_font, y_align:"top", color:rgba(0,0,0,a), z:text_z, text_size: tsize})
+        
+    const total_frames = speed * size(msg) + delay_frames + fade_frames
+    const data = {
+        msg:msg,
+        pos:pos,
+        font:font,
+        start_f:mode_frames,
+        fade_frames:fade_frames,
+        speed: speed,
+        z: z,
+        sound: sound,
+        font:font,
+    }
+    add_frame_hook(draw_msg_balloon_callback, ∅, total_frames, get_mode(), data)
