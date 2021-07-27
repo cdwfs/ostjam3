@@ -7,3 +7,4 @@ __pycache__/
 *.reason
 *.xcf
 *.bfxrsound
+*.debug.json
