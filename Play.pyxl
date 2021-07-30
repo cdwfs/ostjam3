@@ -23,6 +23,7 @@ const BUILDING_PUSH_AMOUNT = 0.2
 const BUILDING_FLASH_FRAMES = 60
 const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 32
 const PORTAL_PUSH_AMOUNT = 0.15
+const SESSION_FRAME_COUNT = 3 * 60 * 60 // 3 minutes
 
 const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
 const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 25%}
@@ -354,6 +355,10 @@ if current_portal ≠ ∅:
 // UI
 draw_text({font:font, text:"Hit:" + building_hit_count, x_align:"left", y_align:"top",
     pos:xyz(5,5,200), color:#f, shadow:rgba(0,0,0,0.5), outline:#000})
+draw_text({font:font, text:format_number((SESSION_FRAME_COUNT-mode_frames)/60, "stopwatch"),
+    x_align:"right", y_align:"top", pos:xyz(SCREEN_SIZE.x-5,5,200), color:#f,
+    shadow:rgba(0,0,0,0.5), outline:#000})
+// debug
 if DEBUG_MUSIC:
     bgm_draw_debug()
 
