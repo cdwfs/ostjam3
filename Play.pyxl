@@ -20,6 +20,7 @@ const PORTAL_ANGLE_DRIFT_SPEED_MIN = 0.003 * π
 const BUILDING_PUSH_RADIUS_INNER = 16
 const BUILDING_PUSH_RADIUS_OUTER = 48
 const BUILDING_PUSH_AMOUNT = 0.2
+const BUILDING_FLASH_FRAMES = 60
 const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 32
 const PORTAL_PUSH_AMOUNT = 0.15
 
@@ -40,11 +41,13 @@ def make_building(pos):
         name: "Building",
         shape: "rect",
         sprite: prototype_blocks_sprite[3][0],
+        override_color: rgba(1,1,1,0),
+        last_hit_f: -∞,
     })
-def itor_building_destroy(building):
-    if building.destroyed:
-        return iterate.REMOVE
-    
+def itor_building_update(building):
+    building.override_color.a = lerp(1, 0, mode_frames, building.last_hit_f, building.last_hit_f+BUILDING_FLASH_FRAMES)
+    return
+        
 def make_explosion(pos):
     play_sound({pitch: random(75%, 125%),
         pan: lerp(-100%, 100%, pos.x, 0, SCREEN_SIZE.x),
@@ -151,8 +154,7 @@ def itor_missile_update(missile):
     // collide with buildings
     for building in buildings:
         if overlaps(missile, building, false):
-            building.destroyed = true
-            todo("buildings should test for overlap with explosions and explode themselves")
+            building.last_hit_f = mode_frames
             push(explosions, make_explosion(missile.pos))
             return iterate.REMOVE
     // collide with ground
@@ -316,8 +318,8 @@ iterate(explosions, itor_explosion_update)
 iterate(portals, itor_portal_update)
 // Advance missiles & check for impact
 iterate(missiles, itor_missile_update)
-// Destroy any buildings that were hit by missiles
-iterate(buildings, itor_building_destroy)
+// Update buildings
+iterate(buildings, itor_building_update)
 
 // Check for game over
 if size(buildings) == 0 and game_over_hook == nil:
