@@ -275,7 +275,7 @@ game_over_hook = nil
 for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
 
-set_post_effects({bloom: 100%})
+set_post_effects({bloom: 50%})
 
 frame
 ────────────────────────────────────────────────────────────────────────
