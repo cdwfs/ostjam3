@@ -184,6 +184,11 @@
             "type": "boolean",
             "value": false,
             "description": "Enable music playback debugging. In this mode, pushing the (F) button will advance to the next song clip."
+        },
+        "DEBUG_DEV_MODE": {
+            "type": "boolean",
+            "value": false,
+            "description": "If true, various developer cheats & options are enabled"
         }
     },
     "screenshot_tag": "PortalCommand"
