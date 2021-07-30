@@ -155,6 +155,7 @@ def itor_missile_update(missile):
     for building in buildings:
         if overlaps(missile, building, false):
             building.last_hit_f = mode_frames
+            building_hit_count += 1
             push(explosions, make_explosion(missile.pos))
             return iterate.REMOVE
     // collide with ground
@@ -259,7 +260,8 @@ let missiles = []
 let portals = []
 let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
-let game_over_hook = nil
+let game_over_hook = ∅
+let building_hit_count = 0
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -269,7 +271,8 @@ missiles = []
 portals = []
 current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
-game_over_hook = nil
+game_over_hook = ∅
+building_hit_count = 0
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
@@ -348,6 +351,9 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
+// UI
+draw_text({font:font, text:"Hit:" + building_hit_count, x_align:"left", y_align:"top",
+    pos:xyz(5,5,200), color:#f, shadow:rgba(0,0,0,0.5), outline:#000})
 if DEBUG_MUSIC:
     bgm_draw_debug()
 
