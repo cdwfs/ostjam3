@@ -32,8 +32,8 @@ const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 25%}
 const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 50%}
 const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 50%}
 
-def enter_gameover_mode(data):
-    set_mode(GameOver) because "All buildings are destroyed"
+def enter_gameover_mode(mode_input):
+    set_mode(GameOver, mode_input) because "All buildings are destroyed"
 
 def make_building(pos):
   return make_entity({
@@ -327,7 +327,7 @@ iterate(buildings, itor_building_update)
 
 // Check for game over
 if mode_frames ≥ SESSION_FRAME_COUNT or (DEBUG_DEV_MODE and joy.qq):
-    game_over_hook = add_frame_hook(fade_out, enter_gameover_mode, 2*60, ∅, {})
+    game_over_hook = add_frame_hook(fade_out, enter_gameover_mode, 2*60, ∅, {score:building_hit_count})
 
 // Rendering
 // cursor
