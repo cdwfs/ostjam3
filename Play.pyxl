@@ -7,8 +7,6 @@ const EXPLOSION_MAX_RADIUS = 24
 const PORTAL_RADIUS = 16
 const WARP_DURATION = 45
 const CURSOR_SPEED = 2.5
-const WARP_CONNECTION_COLOR_BREATHE_FRAMES = 120
-const WARP_CONNECTION_OFFSET_BREATHE_FRAMES = 70
 const WARP_CONNECTION_MAX_OPACITY = 0.4
 const PORTAL_LIFETIME_FRAMES = 1800
 const PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES = 350
@@ -266,9 +264,6 @@ def turn_towards( angle_input, angle_target, angle_turn_amount ):
         return angle_target
     const lerp_amount = clamp( angle_turn_amount / max( 0.00001, angleBetween ), 0, 1 )
     return lerp_angle( angle_input, angle_target, lerp_amount )
-            
-
-            
 
 def itor_portal_draw(portal):
     //debug to see point of drift - draw_disk({pos:portal.positionDriftCenter, z:portal.z + 2, radius:4, color: #f00, outline:#f00})
@@ -283,7 +278,7 @@ def itor_portal_draw(portal):
         if SHOW_ANCHOR_POS_DEBUGGING:
             draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
         //We then make a constant line effect that zips between the two portals
-        const edge_offset_mag = cos( 0.5 * π * loop( game_frames / WARP_CONNECTION_OFFSET_BREATHE_FRAMES ) )
+        const edge_offset_mag = cos( 0.5 * π * bgm_measure_t )
         const grey_to_use = WARP_CONNECTION_MAX_OPACITY * edge_offset_mag
         let dir_to_buddy = portal.buddy.pos - portal.pos
         dir_to_buddy = edge_offset_mag * dir_to_buddy / magnitude( dir_to_buddy )
