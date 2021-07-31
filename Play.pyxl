@@ -373,12 +373,16 @@ if mode_frames ≥ SESSION_FRAME_COUNT or (DEBUG_DEV_MODE and joy.qq):
 draw_line({A:cursor_pos-xy(3,0), B:cursor_pos+xy(3,0), z:10, color:#f})
 draw_line({A:cursor_pos-xy(0,3), B:cursor_pos+xy(0,3), z:10, color:#f})
 // ground
-//draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:#242})
-for GROUND_Y ≤ y < SCREEN_SIZE.y:
-    const iy = y - GROUND_Y
-    const x_offset = 0 // mode_frames/2
-    draw_map_span(xy(0,y), xy(SCREEN_SIZE.x,0), ground_map,
-        xy((2*iy)+x_offset,2*iy) / ground_map.sprite_size, xy(192-(2*iy) + x_offset,2*iy) / ground_map.sprite_size)
+local:
+    draw_line({A:xy(0, GROUND_Y+0), B:xy(SCREEN_SIZE.x, GROUND_Y+0), z:0, color:#0f0})
+    draw_line({A:xy(0, GROUND_Y+1), B:xy(SCREEN_SIZE.x, GROUND_Y+1), z:0, color:#0a0})
+    draw_line({A:xy(0, GROUND_Y+8), B:xy(SCREEN_SIZE.x, GROUND_Y+8), z:0, color:#0f0})
+    draw_line({A:xy(0, GROUND_Y+9), B:xy(SCREEN_SIZE.x, GROUND_Y+9), z:0, color:#0a0})
+    for 0 ≤ i ≤ 12:
+        const x_near = lerp(-80, SCREEN_SIZE.x+80, i, 0, 12)
+        const x_far = lerp(0, SCREEN_SIZE.x, i, 0, 12)
+        draw_line({A:xy(x_near, SCREEN_SIZE.y), B:xy(x_far, GROUND_Y), z:0, color:#0f0})
+        draw_line({A:xy(x_near+0.5, SCREEN_SIZE.y+0.7), B:xy(x_far+0.5, GROUND_Y+0.7), z:0, color:#0f0})
 // buildings
 for building in buildings:
     draw_entity(building)
