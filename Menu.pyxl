@@ -61,7 +61,7 @@ for menu_item at i in MENU_ITEMS:
     draw_text({text:menu_item, pos:menu_offset, z:100, ...MENU_ITEM_TEXT_ARGS}).y
     if current_menu_item == i:
         draw_text({pos:menu_offset - xy(4,0), z:100, ...MENU_CURSOR_TEXT_ARGS})
-    menu_offset.y += font.line_height
+    menu_offset.y += menu_font.line_height
 
 leave
 ────────────────────────────────────────────────────────────────────────
