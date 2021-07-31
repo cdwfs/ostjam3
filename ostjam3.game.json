@@ -19,7 +19,6 @@
     "start_mode": "Menu",
     "docs": [],
     "assets": {
-        "shapes": "quad://sprites/shapes-32x32.sprite.json",
         "prototype_blocks_sprite": "prototype-blocks.sprite.json",
         "loopA_sound": "loopA.sound.json",
         "loopE_sound": "loopE.sound.json",
