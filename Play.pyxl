@@ -135,8 +135,9 @@ def itor_missile_update(missile):
             play_sound({pitch: random(75%, 125%),
                 pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
                 ...SND_MISSILE_EXIT_PORTAL})
-        else:
-            return iterate.CONTINUE // no further processing for missiles mid-warp
+            for 0 ≤ i < PARTICLE_COUNT:
+                push(particles, make_particle(missile.pos, PARTICLE_STYLE_EXIT))
+        return iterate.CONTINUE // no further processing for missiles mid-warp
     
     missile.pos += MISSILE_SPEED * missile.dir
     // collide with portals
@@ -151,6 +152,8 @@ def itor_missile_update(missile):
             missile.warp_sound = play_sound({pitch: random(75%, 125%),
                 pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
                 ...SND_MISSILE_WARP})
+            for 0 ≤ i < PARTICLE_COUNT:
+                push(particles, make_particle(missile.pos, PARTICLE_STYLE_ENTER))
             return iterate.CONTINUE // skip remaining checks when entering a portal        
 
     // collide with explosions
@@ -294,10 +297,37 @@ def itor_portal_draw(portal):
         const anchorEndpoint = portal.pos + ( portal.radius * angle_to_xy( portal.anchorTheta )  ) // )
         draw_line({A: portal.pos, B: anchorEndpoint, z: portal.z + 1, width: 2, color: gray(1) })
 
+const PARTICLE_STYLE_ENTER = 1
+const PARTICLE_STYLE_EXIT = 2
+def make_particle(pos, style):
+    const point = pos + PARTICLE_RADIUS * random_within_circle()
+    const spawn_pos = if style == PARTICLE_STYLE_ENTER then point else clone(pos)
+    const goal_pos = if style == PARTICLE_STYLE_ENTER then clone(pos) else point
+    return {
+        goal_pos: goal_pos,
+        style: style,
+        color: #f00,
+        spawn_pos: spawn_pos,
+        spawn_f: mode_frames + random_integer(0, 10), // may spawn in the future
+    }
+def itor_particle_update(p):
+    if mode_frames - p.spawn_f > PARTICLE_DURATION:
+        return iterate.REMOVE
+def itor_particle_draw(p):
+    if mode_frames < p.spawn_f:
+        return
+    let t = lerp(0, 1, mode_frames, p.spawn_f, p.spawn_f + PARTICLE_DURATION)
+    draw_point({
+        pos: lerp(p.spawn_pos, p.goal_pos, if p.style == PARTICLE_STYLE_ENTER then pow(t,5) else pow(t,0.2)),
+        color: p.color,//rgba(p.color, lerp(1, 0, t*t)),
+        z: 40,
+    })
+
 let explosions = []
 let buildings = []
 let missiles = []
 let portals = []
+let particles = []
 let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
 let game_over_hook = ∅
@@ -309,6 +339,7 @@ explosions = []
 buildings = []
 missiles = []
 portals = []
+particles = []
 current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
 game_over_hook = ∅
@@ -329,7 +360,6 @@ song_update()
 cursor_pos.x = clamp(cursor_pos.x + (CURSOR_SPEED * joy.x), 0, SCREEN_SIZE.x-1)
 cursor_pos.y = clamp(cursor_pos.y + (CURSOR_SPEED * joy.y), 0, SCREEN_SIZE.y-1)
 if joy.aa:
-    //push(explosions, make_explosion(cursor_pos))
     let portal = make_portal(cursor_pos)
     if current_portal == ∅: // first in pair
         current_portal = portal
@@ -399,6 +429,9 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
+// particles
+iterate(particles, itor_particle_update)
+iterate(particles, itor_particle_draw)
 // UI
 draw_text({font:font, text:"Hit:" + building_hit_count, x_align:"left", y_align:"top",
     pos:xyz(5,5,200), color:#f, shadow:rgba(0,0,0,0.5), outline:#000})

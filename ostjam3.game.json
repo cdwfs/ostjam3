@@ -235,6 +235,33 @@
                 "x": "+1",
                 "y": "-1"
             }
+        },
+        "PARTICLE_DURATION": {
+            "type": "number",
+            "value": "17",
+            "description": "Duration of particle effects, in frames",
+            "min": 1,
+            "max": 120,
+            "format": "",
+            "quantum": 1
+        },
+        "PARTICLE_RADIUS": {
+            "type": "number",
+            "value": "16",
+            "description": "radius in pixels of particle effects",
+            "min": 1,
+            "max": 32,
+            "format": "",
+            "quantum": 1
+        },
+        "PARTICLE_COUNT": {
+            "type": "number",
+            "value": "40",
+            "description": "Number of particles to spawn when a missile enters/exits a portal",
+            "min": 0,
+            "max": 100,
+            "format": "",
+            "quantum": 1
         }
     },
     "screenshot_tag": "PortalCommand"
