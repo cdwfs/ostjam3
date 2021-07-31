@@ -71,15 +71,6 @@
             "format": ".00",
             "quantum": 0.01
         },
-        "MAX_MISSILE_COUNT": {
-            "type": "number",
-            "value": "50",
-            "description": "how many missiles can be in flight simultaneously? (Mainly useful to limit it to 1 for debugging)",
-            "min": 0,
-            "max": 100,
-            "format": "",
-            "quantum": 1
-        },
         "EXPLOSION_DURATION": {
             "type": "number",
             "value": "90",

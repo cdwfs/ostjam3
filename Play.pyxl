@@ -22,7 +22,7 @@ const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 38
 const PORTAL_PUSH_AMOUNT = 0.2
 const PORTAL_BACKGROUND_RADIATION_PUSH_AMOUNT = 0.05
 const BUILDING_FLASH_FRAMES = 60
-const SESSION_FRAME_COUNT = 3 * 60 * 60 // 3 minutes
+const SESSION_FRAME_COUNT = 2 * 60 * 60
 
 const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
 const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 25%}
@@ -332,6 +332,8 @@ let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
 let game_over_hook = ∅
 let building_hit_count = 0
+let max_missile_count = 1
+let last_missile_spawn_f = 0
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -344,6 +346,8 @@ current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
 game_over_hook = ∅
 building_hit_count = 0
+let max_missile_count = 1
+last_missile_spawn_f = 0
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
@@ -384,7 +388,20 @@ if joy.aa:
             ...SND_PORTAL_PLACE2})
 
 // randomly spawn a new missile
-if size(missiles) < MAX_MISSILE_COUNT and ξ < 0.003:
+def should_spawn_missile():
+    // Increase max missile count
+    const MAX_MISSILE_INCREMENT_PERIOD_FRAMES = 20*60
+    max_missile_count = 1 + floor(mode_frames / MAX_MISSILE_INCREMENT_PERIOD_FRAMES)
+    if size(missiles) ≥ max_missile_count:
+        return false // don't spawn missiles if we've already hit the max
+    let spawn_chance = 0.003
+    // Spawn more frequently the longer it's been since the last missile was spawned
+    spawn_chance += lerp(0, 0.01, mode_frames, last_missile_spawn_f, last_missile_spawn_f+5*60)
+    // Spawn more frequently if there are fewer missiles on screen
+    spawn_chance += lerp(0.003, 0, size(missiles), 0, max_missile_count)
+    return ξ < spawn_chance
+if should_spawn_missile():
+    last_missile_spawn_f = mode_frames
     const missile = make_missile()
     if missile ≠ ∅:
         push(missiles, missile)
