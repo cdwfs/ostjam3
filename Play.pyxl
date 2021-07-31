@@ -20,8 +20,8 @@ const PORTAL_ANGLE_DRIFT_SPEED_MIN = 0.003 * π
 const BUILDING_PUSH_RADIUS_INNER = 16
 const BUILDING_PUSH_RADIUS_OUTER = 48
 const BUILDING_PUSH_AMOUNT = 0.2
-const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 32
-const PORTAL_PUSH_AMOUNT = 0.15
+const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 38
+const PORTAL_PUSH_AMOUNT = 0.2
 
 const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
 const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 25%}
@@ -172,7 +172,8 @@ def make_portal(pos):
         radius: PORTAL_RADIUS,
         size: PORTAL_RADIUS*xy(2,2),
         anchorTheta: -0.5 * π,
-        anchorTarget: lerp( -π, π, ξ ),
+        anchorTarget: -0.5 * π,
+        anchorPosTarget: pos + ( PORTAL_RADIUS * angle_to_xy( lerp( -π, π, ξ ) ) ),
         anchorDriftSpeed: lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ ),
         driftWait: lerp( PORTAL_DRIFT_WAIT_INITIAL_MIN_FRAMES, PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES, ξ ),
         positionDriftCenter: random_point_in_band_from_pos( pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y ),
@@ -187,18 +188,35 @@ def itor_portal_update(portal):
     if portal.doesDrift:
         if portal.driftWait > 0:
             --portal.driftWait
+            //Set our new values for drift the frame it's about to happen.
+            if ( portal.driftWait ≤ 0 ):
+                //Choose a new aim angle, directly towards a building if we're being an asshole
+                if ( ξ ≤ PORTAL_CHANCE_TO_BE_A_DICK ) and ( size( buildings ) > 0 ):
+                    portal.anchorPosTarget = random_value( buildings ).pos
+                else:
+                    portal.anchorPosTarget = portal.pos + ( PORTAL_RADIUS * lerp( -π, π, ξ ) )
+                //Create a position and speed for a fictional solar wind that will push the portal
+                portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
+                portal.positionDriftCenter = random_point_in_band_from_pos( portal.pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y )
         else:
-            const angleBetween = loop( portal.anchorTarget - portal.anchorTheta, -π, π)
-            portal.anchorTheta = lerp_angle( portal.anchorTheta, portal.anchorTarget, clamp( portal.anchorDriftSpeed / max( 0.001, abs( angleBetween ) ), 0, 1 ) )
+            //DRIFT COOOOORE
+            //Here, we check every frame to see if our closest approach is inside our buddy. If so, make it... not... inside our buddy
+            const dirToAnchorPosition = direction( portal.anchorPosTarget - portal.pos )
+            const vecToBuddy = portal.buddy.pos - portal.pos
+            const pointOfClosestApproach = ( dot( vecToBuddy, dirToAnchorPosition ) * dirToAnchorPosition ) + portal.pos
+            if ( dot( vecToBuddy, dirToAnchorPosition ) > 0 ) and ( magnitude( pointOfClosestApproach - portal.buddy.pos ) < PORTAL_RADIUS ):
+                const randomMult = random( PORTAL_ANGLE_DRIFT_OFFSET_FROM_BUDDY.x, PORTAL_ANGLE_DRIFT_OFFSET_FROM_BUDDY.y )
+                portal.anchorPosTarget = ( randomMult * PORTAL_RADIUS * direction( pointOfClosestApproach - portal.buddy.pos ) ) + portal.buddy.pos
+            //Execute the solar wind push and the angular drift
+            portal.anchorTarget = xy_to_angle( portal.anchorPosTarget - portal.pos )
+            portal.anchorTheta = turn_towards( portal.anchorTheta, portal.anchorTarget, portal.anchorDriftSpeed )
             push_portal_from( portal, portal.positionDriftCenter, PORTAL_POS_DRIFT_PUSH_RANGE.x, PORTAL_POS_DRIFT_PUSH_RANGE.y, PORTAL_POS_DRIFT_PUSH_POWER )
-    //If we've reached both our angle and position goals, consider this drift over, set new values, and pass the baton to our buddy.
-    if ( portal.anchorTarget == portal.anchorTheta ) and ( magnitude( portal.pos - portal.positionDriftCenter ) > PORTAL_POS_DRIFT_PUSH_THRESHOLD ):
-        portal.anchorTarget = lerp( -π, π, ξ )
-        portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
-        portal.positionDriftCenter = random_point_in_band_from_pos( portal.pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y )
-        portal.driftWait = lerp( PORTAL_DRIFT_WAIT_FRAMES.x, PORTAL_DRIFT_WAIT_FRAMES.y, ξ )
-        portal.doesDrift = not portal.doesDrift
-        portal.buddy.doesDrift = not portal.buddy.doesDrift
+            //If we've reached both our angle and position goals, consider this drift over, and pass the baton to our buddy.
+            if ( portal.anchorTarget == portal.anchorTheta ) and ( magnitude( portal.pos - portal.positionDriftCenter ) > PORTAL_POS_DRIFT_PUSH_THRESHOLD ):
+                portal.driftWait = lerp( PORTAL_DRIFT_WAIT_FRAMES.x, PORTAL_DRIFT_WAIT_FRAMES.y, ξ )
+                //Hand off the drift baton to our buddy, so we alternate who mutates over time
+                portal.doesDrift = not portal.doesDrift
+                portal.buddy.doesDrift = not portal.buddy.doesDrift
         
     //Then do position pushes from buildings
     for building in buildings:
@@ -229,6 +247,16 @@ def push_portal_from(portal, pushSource, pushInnerRadius, pushOuterRadius, pushA
 def random_point_in_band_from_pos( pos, radiusInner, radiusOuter ):
     return pos + ( lerp( radiusInner, radiusOuter, ξ ) * angle_to_xy( lerp( -π, π, ξ ) ) )
 
+def turn_towards( angle_input, angle_target, angle_turn_amount ):
+    const angleBetween = abs( loop( angle_target - angle_input, -π, π) )
+    if angleBetween <= angle_turn_amount:
+        return angle_target
+    const lerp_amount = clamp( angle_turn_amount / max( 0.00001, angleBetween ), 0, 1 )
+    return lerp_angle( angle_input, angle_target, lerp_amount )
+            
+
+            
+
 def itor_portal_draw(portal):
     //debug to see point of drift - draw_disk({pos:portal.positionDriftCenter, z:portal.z + 2, radius:4, color: #f00, outline:#f00})
     // A portal with an unplaced buddy will still be passed to this function, so we must check for null buddy here.
@@ -238,6 +266,7 @@ def itor_portal_draw(portal):
         //While the portal is changing its output direction, show it in red
         draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: if portal.driftWait > 0 then #48c else #c44, 
             outline: if portal.driftWait > 0 then #248 else #822})
+        draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
         //We then make a constant line effect that zips between the two portals
         const edge_offset_mag = cos( 0.5 * π * loop( game_frames / WARP_CONNECTION_OFFSET_BREATHE_FRAMES ) )
         const grey_to_use = WARP_CONNECTION_MAX_OPACITY * edge_offset_mag
