@@ -339,6 +339,9 @@ if joy.aa:
         portal.buddy = current_portal
         current_portal.buddy = portal
         current_portal.spawn_f = portal.spawn_f
+        // Portals at the exact same location are no fun. Randomly offset the second one if needed.
+        if equivalent(portal.pos, current_portal.pos):
+            portal.pos += random_on_square()
         //Choose one portal or the other to drift
         if ( ξ > 0.5 ):
             portal.doesDrift = true
