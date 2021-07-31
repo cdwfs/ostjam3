@@ -376,8 +376,9 @@ draw_line({A:cursor_pos-xy(0,3), B:cursor_pos+xy(0,3), z:10, color:#f})
 //draw_corner_rect({corner:xy(0,GROUND_Y), size:xy(SCREEN_SIZE.x, 16), z:0, color:#242})
 for GROUND_Y ≤ y < SCREEN_SIZE.y:
     const iy = y - GROUND_Y
+    const x_offset = 0 // mode_frames/2
     draw_map_span(xy(0,y), xy(SCREEN_SIZE.x,0), ground_map,
-        xy((2*iy) + mode_frames/2,2*iy) / ground_map.sprite_size, xy(192-(2*iy) + mode_frames/2,2*iy) / ground_map.sprite_size)
+        xy((2*iy)+x_offset,2*iy) / ground_map.sprite_size, xy(192-(2*iy) + x_offset,2*iy) / ground_map.sprite_size)
 // buildings
 for building in buildings:
     draw_entity(building)
