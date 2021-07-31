@@ -87,7 +87,7 @@ def make_missile():
     const target_building = random_value(buildings)
     if target_building == ∅:
         return // no buildings left to shoot at
-    // spawn far enough off-screen to ensure w don't spawn inside a portal or explosion
+    // spawn far enough off-screen to ensure we don't spawn inside a portal or explosion
     const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), -max(EXPLOSION_MAX_RADIUS, PORTAL_RADIUS))
     const missile_dir = direction(target_building.pos - missile_pos)
     return make_entity({
@@ -276,7 +276,7 @@ def itor_portal_draw(portal):
     else:
         //While the portal is changing its output direction, show it in red
         let anim = if portal.driftWait > 0 then portal_sprite.normal else portal_sprite.spinning
-        let frame = mode_frames - portal.spawn_f
+        let frame = mode_frames
         draw_sprite({pos:portal.pos, z:portal.z, sprite:anim.frame(frame)})
         if SHOW_ANCHOR_POS_DEBUGGING:
             draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
@@ -337,7 +337,7 @@ if joy.aa:
     else: // second in pair
         portal.buddy = current_portal
         current_portal.buddy = portal
-        current_portal.spawn_f = mode_frames
+        current_portal.spawn_f = portal.spawn_f
         //Choose one portal or the other to drift
         if ( ξ > 0.5 ):
             portal.doesDrift = true
