@@ -56,12 +56,19 @@ const title_pos = xy(101,0)
 draw_text({text:"Portal Command", font:title_font, x_align:"left", y_align:"top",
     pos:title_pos, z:100, color:#ff0, shadow:#0008, })
 
-let menu_offset = xy(320, 24)
-for menu_item at i in MENU_ITEMS:
-    draw_text({text:menu_item, pos:menu_offset, z:100, ...MENU_ITEM_TEXT_ARGS}).y
-    if current_menu_item == i:
-        draw_text({pos:menu_offset - xy(4,0), z:100, ...MENU_CURSOR_TEXT_ARGS})
-    menu_offset.y += menu_font.line_height
+local:
+    let menu_offset = xy(320, 24)
+    for menu_item at i in MENU_ITEMS:
+        draw_text({text:menu_item, pos:menu_offset, z:100, ...MENU_ITEM_TEXT_ARGS}).y
+        if current_menu_item == i:
+            draw_text({pos:menu_offset - xy(4,0), z:100, ...MENU_CURSOR_TEXT_ARGS})
+        menu_offset.y += menu_font.line_height
+    for 0 ≤ i ≤ 34:
+        const p = xy(290, 2*i)
+        draw_line({A:p, B:p+xy(100,-1), color:#0203, z:100})
+    
+    const overlay_alpha = lerp(0, 0.25, noise(2, mode_frames/10), -1, 1)
+    draw_corner_rect({corner:xy(290,0), size:xy(100,68), z:100, color:rgba(0,0,0, overlay_alpha)})
 
 leave
 ────────────────────────────────────────────────────────────────────────
