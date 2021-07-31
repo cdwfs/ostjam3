@@ -46,11 +46,13 @@
         "warp_exit_sound": "warp_exit.sound.json",
         "portal1_sound": "portal1.sound.json",
         "portal2_sound": "portal2.sound.json",
-        "font": "quad://fonts/hauer-12.font.json",
         "tiny_font": "quad://fonts/nano-4.font.json",
         "beep_sound": "beep.sound.json",
         "portal_sprite": "portal.sprite.json",
-        "building_hit_sound": "building_hit.sound.json"
+        "building_hit_sound": "building_hit.sound.json",
+        "title_sprite": "title.sprite.json",
+        "title_font": "quad://fonts/robot-18.font.json",
+        "menu_font": "quad://fonts/robot-9.font.json"
     },
     "version": 0,
     "min_players": 1,

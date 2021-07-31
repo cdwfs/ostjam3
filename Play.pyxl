@@ -433,9 +433,9 @@ if current_portal ≠ ∅:
 iterate(particles, itor_particle_update)
 iterate(particles, itor_particle_draw)
 // UI
-draw_text({font:font, text:"Hit:" + building_hit_count, x_align:"left", y_align:"top",
+draw_text({font:menu_font, text:"Hit:" + building_hit_count, x_align:"left", y_align:"top",
     pos:xyz(5,5,200), color:#f, shadow:rgba(0,0,0,0.5), outline:#000})
-draw_text({font:font, text:format_number((SESSION_FRAME_COUNT-mode_frames)/60, "stopwatch"),
+draw_text({font:menu_font, text:format_number((SESSION_FRAME_COUNT-mode_frames)/60, "stopwatch"),
     x_align:"right", y_align:"top", pos:xyz(SCREEN_SIZE.x-5,5,200), color:#f,
     shadow:rgba(0,0,0,0.5), outline:#000})
 // debug

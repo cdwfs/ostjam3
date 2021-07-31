@@ -5,8 +5,9 @@ const MENU_HOWTOPLAY = 1
 const MENU_CREDITS = 2
 const MENU_ITEMS = ["New Game", "How To Play", "Credits"]
 
-const MENU_ITEM_TEXT_ARGS = {font:font, color:#f, x_align:"left"}
-const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].prompt), x_align:"right", color:#f}
+const MENU_ITEM_TEXT_ARGS = {font:menu_font, color:#ff0, x_align:"left", shadow:#0008}
+const MENU_CURSOR_TEXT_ARGS = {font:menu_font, text:replace("(a)", gamepad_array[0].prompt),
+    x_align:"right", color:#ff0, shadow:#0008}
 
 def enter_setup_mode(data):
     set_mode(Play) because "selected New Game"
@@ -49,19 +50,17 @@ if not disable_input and gamepad_array[0].aa ≠ 0:
         add_frame_hook(fade_out, enter_credits_mode, 30, nil, {})
         
 // title screen stuff here
-const title_pos = xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y)
-draw_text({font:font, x_align:"center", pos:title_pos,
-    color:#fff, text:"Portal Command"})
-let t = (mode_frames % 60) / 60
-const title_offsets = [xy(1,0),xy(1,1),xy(0,1),xy(-1,1),xy(-1,0),xy(-1,-1),xy(0,-1),xy(1,-1)]
-draw_text({font:font, x_align:"center", pos:title_pos + array_value(title_offsets, mode_frames/3, "loop"),
-    color:hsv(t, 1, 1), text:"Portal Command", z:-1})
+draw_sprite({sprite:title_sprite.bg, z:0, pos:xy(0,0)})
+draw_sprite({sprite:title_sprite.fg, z:10, pos:xy(0,0)})
+const title_pos = xy(101,0)
+draw_text({text:"Portal Command", font:title_font, x_align:"left", y_align:"top",
+    pos:title_pos, z:100, color:#ff0, shadow:#0008, })
 
-let menu_offset = xy(36% SCREEN_SIZE.x, 65% SCREEN_SIZE.y)
+let menu_offset = xy(314, 16)
 for menu_item at i in MENU_ITEMS:
-    draw_text({text:menu_item, pos:menu_offset, ...MENU_ITEM_TEXT_ARGS}).y
+    draw_text({text:menu_item, pos:menu_offset, z:100, ...MENU_ITEM_TEXT_ARGS}).y
     if current_menu_item == i:
-        draw_text({pos:menu_offset - xy(10,0), ...MENU_CURSOR_TEXT_ARGS})
+        draw_text({pos:menu_offset - xy(4,0), z:100, ...MENU_CURSOR_TEXT_ARGS})
     menu_offset.y += font.line_height
 
 leave

@@ -18,7 +18,8 @@ if not disable_input:
         disable_input = true
         play_sound(SND_MENU_BACK)
         add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
-        
+
+const font = menu_font
 const text_args = {font:font, x_align:"left", y_align:"top", color:#f}
 let line_y = 0
 draw_text({text:"A game by Cort Stratton and Ken Strickland", pos:xy(0, line_y), text_size:max(0,mode_frames/3), ...text_args}).y
