@@ -3,7 +3,7 @@ Menu
 const MENU_NEW_GAME = 0
 const MENU_HOWTOPLAY = 1
 const MENU_CREDITS = 2
-const MENU_ITEMS = ["New Game", "How To Play", "Credits"]
+const MENU_ITEMS = ["Play", "Help", "Credits"]
 
 const MENU_ITEM_TEXT_ARGS = {font:menu_font, color:#ff0, x_align:"left", shadow:#0008}
 const MENU_CURSOR_TEXT_ARGS = {font:menu_font, text:replace("(a)", gamepad_array[0].prompt),
@@ -56,7 +56,7 @@ const title_pos = xy(101,0)
 draw_text({text:"Portal Command", font:title_font, x_align:"left", y_align:"top",
     pos:title_pos, z:100, color:#ff0, shadow:#0008, })
 
-let menu_offset = xy(314, 16)
+let menu_offset = xy(320, 24)
 for menu_item at i in MENU_ITEMS:
     draw_text({text:menu_item, pos:menu_offset, z:100, ...MENU_ITEM_TEXT_ARGS}).y
     if current_menu_item == i:
