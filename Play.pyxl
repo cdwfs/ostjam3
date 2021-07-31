@@ -28,6 +28,7 @@ const SESSION_FRAME_COUNT = 3 * 60 * 60 // 3 minutes
 const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
 const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 25%}
 const SND_MISSILE_WARP = {sound:warp_sound, volume: 25%}
+const SND_MISSILE_HIT_BUILDING = {sound:building_hit_sound, volume:50%}
 const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 25%}
 const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 50%}
 const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 50%}
@@ -157,6 +158,8 @@ def itor_missile_update(missile):
         if overlaps(missile, building, false):
             building.last_hit_f = mode_frames
             building_hit_count += 1
+            play_sound({pan: lerp(-100%, 100%, missile.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_MISSILE_HIT_BUILDING})
             push(explosions, make_explosion(missile.pos))
             return iterate.REMOVE
     // collide with ground
