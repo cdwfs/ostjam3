@@ -4,6 +4,28 @@
         "x": 16,
         "y": 16
     },
-    "names": {},
+    "names": {
+        "building": {
+            "start": {
+                "x": 0,
+                "y": 0
+            },
+            "end": {
+                "x": 7,
+                "y": 0
+            },
+            "extrapolate": "loop",
+            "frames": [
+                8,
+                9,
+                8,
+                9,
+                8,
+                9,
+                8,
+                9
+            ]
+        }
+    },
     "license": "TODO"
 }

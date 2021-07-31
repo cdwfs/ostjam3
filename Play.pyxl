@@ -43,11 +43,12 @@ def make_building(pos):
         z: 1,
         name: "Building",
         shape: "rect",
-        sprite: prototype_blocks_sprite[3][0],
+        sprite: prototype_blocks_sprite.building[0],
         override_color: rgba(1,1,1,0),
         last_hit_f: -∞,
     })
 def itor_building_update(building):
+    building.sprite = prototype_blocks_sprite.building.frame(mode_frames)
     building.override_color.a = lerp(1, 0, mode_frames, building.last_hit_f, building.last_hit_f+BUILDING_FLASH_FRAMES)
     return
         
