@@ -3,7 +3,7 @@ Play
 
 const GROUND_Y = SCREEN_SIZE.y-16
 //const EXPLOSION_DURATION = 90
-const EXPLOSION_MAX_RADIUS = 24
+const EXPLOSION_MAX_RADIUS = 10
 const PORTAL_RADIUS = 16
 const WARP_DURATION = 45
 const CURSOR_SPEED = 2.5
@@ -18,10 +18,11 @@ const PORTAL_DRIFT_WAIT_MAX_FRAMES = 200
 const PORTAL_ANGLE_DRIFT_SPEED_MAX = 0.004 * π
 const PORTAL_ANGLE_DRIFT_SPEED_MIN = 0.003 * π
 const BUILDING_PUSH_RADIUS_INNER = 16
-const BUILDING_PUSH_RADIUS_OUTER = 48
+const BUILDING_PUSH_RADIUS_OUTER = 40
 const BUILDING_PUSH_AMOUNT = 0.2
 const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 38
 const PORTAL_PUSH_AMOUNT = 0.2
+const PORTAL_BACKGROUND_RADIATION_PUSH_AMOUNT = 0.05
 const BUILDING_FLASH_FRAMES = 60
 const SESSION_FRAME_COUNT = 3 * 60 * 60 // 3 minutes
 
@@ -234,6 +235,8 @@ def itor_portal_update(portal):
     //Then do position pushes from buildings
     for building in buildings:
         push_portal_from( portal, building.pos, BUILDING_PUSH_RADIUS_INNER, BUILDING_PUSH_RADIUS_OUTER, BUILDING_PUSH_AMOUNT )
+    //General push up
+    push_portal_from( portal, xy( portal.pos.x, SCREEN_SIZE.y ), PORTAL_POS_DRIFT_UPWARD_RANGE.x * SCREEN_SIZE.y, PORTAL_POS_DRIFT_UPWARD_RANGE.y * SCREEN_SIZE.y, PORTAL_BACKGROUND_RADIATION_PUSH_AMOUNT )
     //Push away from other portals
     for otherPortal in portals:
         if otherPortal ≠ portal:
