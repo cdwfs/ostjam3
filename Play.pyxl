@@ -33,6 +33,8 @@ const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 25%}
 const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 50%}
 const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 50%}
 
+const SHOW_ANCHOR_POS_DEBUGGING = false
+
 def enter_gameover_mode(mode_input):
     set_mode(GameOver, mode_input) because "All buildings are destroyed"
 
@@ -277,7 +279,8 @@ def itor_portal_draw(portal):
         //While the portal is changing its output direction, show it in red
         draw_disk({pos:portal.pos, z:portal.z, radius:portal.radius, color: if portal.driftWait > 0 then #48c else #c44, 
             outline: if portal.driftWait > 0 then #248 else #822})
-        draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
+        if SHOW_ANCHOR_POS_DEBUGGING:
+            draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
         //We then make a constant line effect that zips between the two portals
         const edge_offset_mag = cos( 0.5 * π * loop( game_frames / WARP_CONNECTION_OFFSET_BREATHE_FRAMES ) )
         const grey_to_use = WARP_CONNECTION_MAX_OPACITY * edge_offset_mag
