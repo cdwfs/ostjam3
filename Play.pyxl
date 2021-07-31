@@ -254,7 +254,7 @@ def itor_portal_update(portal):
 def push_portal_from(portal, pushSource, pushInnerRadius, pushOuterRadius, pushAmountAtInner):
     const vecToPortalFromSource = portal.pos - pushSource
     const distanceBetweenPortalAndSource = magnitude( vecToPortalFromSource )
-    if ( distanceBetweenPortalAndSource > pushOuterRadius ) or ( portal.pos == pushSource ):
+    if ( distanceBetweenPortalAndSource > pushOuterRadius ) or ( equivalent(portal.pos, pushSource) ):
         return
     const pushPower = lerp( pushAmountAtInner, 0, max( distanceBetweenPortalAndSource - pushInnerRadius, 0 ) / ( pushOuterRadius - pushInnerRadius ) )
     portal.pos += pushPower * vecToPortalFromSource / distanceBetweenPortalAndSource
