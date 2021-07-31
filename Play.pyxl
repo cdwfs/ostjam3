@@ -22,16 +22,19 @@ const BUILDING_PUSH_RADIUS_OUTER = 48
 const BUILDING_PUSH_AMOUNT = 0.2
 const PORTAL_PUSH_RADIUS_ADDITION_OUTER = 38
 const PORTAL_PUSH_AMOUNT = 0.2
+const BUILDING_FLASH_FRAMES = 60
+const SESSION_FRAME_COUNT = 3 * 60 * 60 // 3 minutes
 
 const SND_MISSILE_EXPLODE = {sound:explosion_sound, volume: 100%}
 const SND_MISSILE_ENTER_PORTAL = {sound:warp_enter_sound, volume: 25%}
 const SND_MISSILE_WARP = {sound:warp_sound, volume: 25%}
+const SND_HIT_BUILDING = {sound:building_hit_sound, volume:50%}
 const SND_MISSILE_EXIT_PORTAL = {sound:warp_exit_sound, volume: 25%}
 const SND_PORTAL_PLACE1 = {sound:portal1_sound, volume: 50%}
 const SND_PORTAL_PLACE2 = {sound:portal2_sound, volume: 50%}
 
-def enter_gameover_mode(data):
-    set_mode(GameOver) because "All buildings are destroyed"
+def enter_gameover_mode(mode_input):
+    set_mode(GameOver, mode_input) because "All buildings are destroyed"
 
 def make_building(pos):
   return make_entity({
@@ -40,11 +43,13 @@ def make_building(pos):
         name: "Building",
         shape: "rect",
         sprite: prototype_blocks_sprite[3][0],
+        override_color: rgba(1,1,1,0),
+        last_hit_f: -∞,
     })
-def itor_building_destroy(building):
-    if building.destroyed:
-        return iterate.REMOVE
-    
+def itor_building_update(building):
+    building.override_color.a = lerp(1, 0, mode_frames, building.last_hit_f, building.last_hit_f+BUILDING_FLASH_FRAMES)
+    return
+        
 def make_explosion(pos):
     play_sound({pitch: random(75%, 125%),
         pan: lerp(-100%, 100%, pos.x, 0, SCREEN_SIZE.x),
@@ -58,6 +63,7 @@ def make_explosion(pos):
         name:"Explosion",
         start_f: mode_frames,
         end_f: mode_frames+EXPLOSION_DURATION,
+        hit_buildings: [],
     })
 def itor_explosion_draw(e):
     draw_disk({pos:e.pos, radius:e.radius, color:#c84, outline:#f80, z:e.z})
@@ -67,7 +73,14 @@ def itor_explosion_update(e):
         return iterate.REMOVE
     e.radius = EXPLOSION_MAX_RADIUS * t
     e.size = xy(2*e.radius, 2*e.radius)
-
+    // Collide with buildings
+    for building in buildings:
+        if find(e.hit_buildings, building) == ∅ and overlaps(e, building, false):
+            building.last_hit_f = mode_frames
+            building_hit_count += 1
+            push(e.hit_buildings, building)
+            play_sound({pan: lerp(-100%, 100%, e.pos.x, 0, SCREEN_SIZE.x),
+                ...SND_HIT_BUILDING})
     
 def make_missile():
     const target_building = random_value(buildings)
@@ -150,9 +163,7 @@ def itor_missile_update(missile):
             return iterate.REMOVE        
     // collide with buildings
     for building in buildings:
-        if overlaps(missile, building, false):
-            building.destroyed = true
-            todo("buildings should test for overlap with explosions and explode themselves")
+        if overlaps(missile, building, false) and not find(missile.hit_buildings, building):
             push(explosions, make_explosion(missile.pos))
             return iterate.REMOVE
     // collide with ground
@@ -286,7 +297,8 @@ let missiles = []
 let portals = []
 let current_portal = nil
 let cursor_pos = 50% SCREEN_SIZE
-let game_over_hook = nil
+let game_over_hook = ∅
+let building_hit_count = 0
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -296,13 +308,14 @@ missiles = []
 portals = []
 current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
-game_over_hook = nil
+game_over_hook = ∅
+building_hit_count = 0
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
     push(buildings, make_building(xy(x, GROUND_Y-4)))
 
-set_post_effects({bloom: 100%})
+set_post_effects({bloom: 50%})
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -345,12 +358,12 @@ iterate(explosions, itor_explosion_update)
 iterate(portals, itor_portal_update)
 // Advance missiles & check for impact
 iterate(missiles, itor_missile_update)
-// Destroy any buildings that were hit by missiles
-iterate(buildings, itor_building_destroy)
+// Update buildings
+iterate(buildings, itor_building_update)
 
 // Check for game over
-if size(buildings) == 0 and game_over_hook == nil:
-    game_over_hook = add_frame_hook(fade_out, enter_gameover_mode, 2*60, ∅, {})
+if mode_frames ≥ SESSION_FRAME_COUNT or (DEBUG_DEV_MODE and joy.qq):
+    game_over_hook = add_frame_hook(fade_out, enter_gameover_mode, 2*60, ∅, {score:building_hit_count})
 
 // Rendering
 // cursor
@@ -375,6 +388,13 @@ iterate(missiles, itor_missile_draw)
 iterate(portals, itor_portal_draw)
 if current_portal ≠ ∅:
     itor_portal_draw(current_portal)
+// UI
+draw_text({font:font, text:"Hit:" + building_hit_count, x_align:"left", y_align:"top",
+    pos:xyz(5,5,200), color:#f, shadow:rgba(0,0,0,0.5), outline:#000})
+draw_text({font:font, text:format_number((SESSION_FRAME_COUNT-mode_frames)/60, "stopwatch"),
+    x_align:"right", y_align:"top", pos:xyz(SCREEN_SIZE.x-5,5,200), color:#f,
+    shadow:rgba(0,0,0,0.5), outline:#000})
+// debug
 if DEBUG_MUSIC:
     bgm_draw_debug()
 

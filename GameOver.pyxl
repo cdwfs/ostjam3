@@ -5,10 +5,16 @@ def enter_menu_mode(data):
     set_mode(Menu) because "Returned to main menu"
 
 let disable_input = false
+let score = 0
 
-enter
+// Expected mode_input is an object with the following fields:
+// - score: a number containing the player's score from the session that just ended
+enter(mode_input)
 ────────────────────────────────────────────────────────────────────────
 disable_input = false
+score = 0
+
+score = mode_input.score
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -23,6 +29,8 @@ if not disable_input:
         
 draw_text({font:font, text:"Game Over!", pos:xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y),
     text_size:max(0,mode_frames/3), x_align:"center", color:#f}).y
+draw_text({font:font, text:"Score: " + score, pos:xy(50% SCREEN_SIZE.x, 45% SCREEN_SIZE.y),
+    x_align:"center", color:#f}).y
 
 draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
     text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})

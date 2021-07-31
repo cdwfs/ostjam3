@@ -49,7 +49,8 @@
         "portal2_sound": "portal2.sound.json",
         "font": "quad://fonts/hauer-12.font.json",
         "tiny_font": "quad://fonts/nano-4.font.json",
-        "beep_sound": "beep.sound.json"
+        "beep_sound": "beep.sound.json",
+        "building_hit_sound": "building_hit.sound.json"
     },
     "version": 0,
     "min_players": 1,
@@ -211,6 +212,11 @@
                 "x": "+1",
                 "y": "-1"
             }
+		},
+        "DEBUG_DEV_MODE": {
+            "type": "boolean",
+            "value": false,
+            "description": "If true, various developer cheats & options are enabled"
         }
     },
     "screenshot_tag": "PortalCommand"

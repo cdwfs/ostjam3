@@ -172,7 +172,7 @@ def song_update():
     bgm_update()
     if bgm_now_f ≥ bgm_dur_f or (DEBUG_MUSIC and joy.ff): // current clip has ended
         bgm_stop()
-        const start_sec = (bgm_now_f - bgm_dur_f) / 60
+        const start_sec = 0
         // If we've exhausted the clips in the current transition, switch to its destination state
         song_current_clip_index += 1
         if song_current_clip_index ≥ size(song_current_transition.clips):
