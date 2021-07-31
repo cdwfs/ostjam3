@@ -278,7 +278,8 @@ def itor_portal_draw(portal):
     else:
         //While the portal is changing its output direction, show it in red
         let anim = if portal.driftWait > 0 then portal_sprite.normal else portal_sprite.spinning
-        draw_sprite({pos:portal.pos, z:portal.z, sprite:anim.frame(mode_frames-portal.spawn_f)})
+        let frame = floor((mode_frames)/BGM_FRAMES_PER_BEAT) + portal.spawn_f
+        draw_sprite({pos:portal.pos, z:portal.z, sprite:anim.frame(frame)})
         if SHOW_ANCHOR_POS_DEBUGGING:
             draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
         //We then make a constant line effect that zips between the two portals

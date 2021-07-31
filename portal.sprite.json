@@ -5,8 +5,40 @@
         "y": 32
     },
     "names": {
-        "normal": {"start": {"x":0, "y":1}, "end": {"x":3, "y":1}, "extrapolate":"loop", "frames":[17,17,17,17]},
-        "spinning": {"start": {"x":0, "y":2}, "end": {"x":3, "y":2}, "extrapolate":"loop", "frames":[17,17,17,17]}
+        "normal": {
+            "start": {
+                "x": 0,
+                "y": 1
+            },
+            "end": {
+                "x": 3,
+                "y": 1
+            },
+            "extrapolate": "loop",
+            "frames": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "spinning": {
+            "start": {
+                "x": 0,
+                "y": 2
+            },
+            "end": {
+                "x": 3,
+                "y": 2
+            },
+            "extrapolate": "loop",
+            "frames": [
+                1,
+                1,
+                1,
+                1
+            ]
+        }
     },
     "license": "TODO"
 }
