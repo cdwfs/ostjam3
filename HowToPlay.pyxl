@@ -22,13 +22,25 @@ if not disable_input:
         add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
         
 
-const font = menu_font
-const text_args = {font:font, x_align:"left", y_align:"top", wrap_width:SCREEN_SIZE.x, markup:true, color:#c}
-let line_y = 0
-draw_text({text:"Someday there will be a help screen here", pos:xy(0, line_y),
-    text_size:max(0,mode_frames/3), ...text_args}).y
-line_y += font.line_height
+const help_text = join([
+    "TO: Missile Command Operator",
+    "FROM: Missile High Command",
+    "RE: **URGENT** Missile Attack{br}-----",
+    "It's raining missiles. AGAIN.{br}",
+    "Normally, we're just shoot them out of the sky. Unfortunately, due",
+    "to recent fiscal reforms and a couple holiday parties that went WAY",
+    "over budget, the old missile defense system was scrapped and sold",
+    "for parts. All we have his this {color:#0af portal gun}.{br}",
+    "We may not be able to shoot the missiles down, but we can redirect",
+    "them to a safe target far from civilian population centers. It's not",
+    "ideal, we know. Just...do your best."
+    ], "{br}")
 
+
+
+draw_text({text:help_text, pos:xy(0,0), font:menu_font, x_align:"left", y_align:"top", markup:true, color:#efd})
+draw_text({font:menu_font, pos:xy(50% SCREEN_SIZE.x, 95% SCREEN_SIZE.y),
+    text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})
 leave
 ────────────────────────────────────────────────────────────────────────
 reset_post_effects()

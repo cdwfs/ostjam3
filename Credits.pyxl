@@ -30,7 +30,7 @@ const credits = join([
 
 draw_text({text:credits, pos:xy(0,0), text_size:max(0,mode_frames/3),
     font:menu_font, x_align:"left", y_align:"top", color:#f})
-draw_text({font:menu_font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
+draw_text({font:menu_font, pos:xy(50% SCREEN_SIZE.x, 95% SCREEN_SIZE.y),
     text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})
 
 leave
