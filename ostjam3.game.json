@@ -1,7 +1,7 @@
 {
     "title": "Portal Command",
-    "developer": "Your Name Here",
-    "copyright": "©2021 Your Name Here",
+    "developer": "CKD Industries",
+    "copyright": "©2021 CKD Industries",
     "license": "CC0/Public Domain (Replace with your own license)",
     "packages": [],
     "scripts": [
@@ -60,7 +60,7 @@
     "competitive": false,
     "achievements": false,
     "highscores": false,
-    "description": "Missile Command But Also Portal",
+    "description": "Missile Command, But Also Portal",
     "constants": {
         "MISSILE_SPEED": {
             "type": "number",
