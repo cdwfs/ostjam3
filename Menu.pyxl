@@ -56,6 +56,13 @@ const title_pos = xy(101,0)
 draw_text({text:"Portal Command", font:title_font, x_align:"left", y_align:"top",
     pos:title_pos, z:100, color:#ff0, shadow:#0008, })
 
+draw_sprite({sprite:portal_sprite.normal[1], pos: xy(150,100), z:1})
+draw_sprite({sprite:portal_sprite.normal[1], pos: xy(315,84), scale:xy(0.5,0.5), z:1})
+draw_sprite({sprite:prototype_blocks_sprite.missile[0], pos:xy(155,91), angle:60°, z:3})
+draw_sprite({sprite:prototype_blocks_sprite.missile[0], pos:xy(300,80), scale:xy(0.5,0.5), angle:-15°, z:3})
+draw_sprite({sprite:prototype_blocks_sprite.missile[0], pos:xy(50,45), scale:xy(1.5,1.5), angle:285°, z:3})
+draw_sprite({sprite:prototype_blocks_sprite.missile[0], pos:xy(250,100), scale:xy(0.8,0.8), angle:205°, z:3})
+
 local:
     let menu_offset = xy(320, 24)
     for menu_item at i in MENU_ITEMS:

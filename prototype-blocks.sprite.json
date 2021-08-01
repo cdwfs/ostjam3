@@ -5,6 +5,16 @@
         "y": 16
     },
     "names": {
+        "missile": {
+            "start": {
+                "x": 4,
+                "y": 1
+            },
+            "end": {
+                "x": 5,
+                "y": 1
+            }
+        },
         "building": {
             "start": {
                 "x": 0,
