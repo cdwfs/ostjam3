@@ -198,6 +198,7 @@ def make_portal(pos):
         positionDriftCenter: random_point_in_band_from_pos( pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y ),
         doesDrift: false,
         isCollapsing: false,
+        isDick: false,
         buddy: ∅,
         spawn_f: mode_frames,
     })
@@ -212,6 +213,7 @@ def itor_portal_update(portal):
                 //Choose a new aim angle, directly towards a building if we're being an asshole
                 if ( ξ ≤ PORTAL_CHANCE_TO_BE_A_DICK ) and ( size( buildings ) > 0 ):
                     portal.anchorPosTarget = random_value( buildings ).pos
+                    portal.isDick = true
                 else:
                     portal.anchorPosTarget = portal.pos + ( MAX_PORTAL_RADIUS * lerp( -π, π, ξ ) )
                 //Create a position and speed for a fictional solar wind that will push the portal
@@ -281,8 +283,8 @@ def itor_portal_draw(portal):
     if portal.buddy == ∅:
         draw_disk({pos:portal.pos, z:portal.z, radius:MAX_PORTAL_RADIUS, color: #0000, outline:#248})
     else:
-        //While the portal is changing its output direction, show it in red
-        let anim = if portal.driftWait > 0 then portal_sprite.normal else portal_sprite.spinning
+        // Draw portals in a different color if they're being a dick
+        let anim = if portal.isDick then portal_sprite.spinning else portal_sprite.normal
         let frame = mode_frames
         draw_sprite({pos:portal.pos, z:portal.z, sprite:anim.frame(frame), scale:(portal.radius/MAX_PORTAL_RADIUS)*xy(1,1)})
         if SHOW_ANCHOR_POS_DEBUGGING:
