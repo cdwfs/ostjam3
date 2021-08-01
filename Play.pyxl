@@ -68,7 +68,10 @@ def make_explosion(pos):
         hit_buildings: [],
     })
 def itor_explosion_draw(e):
-    draw_disk({pos:e.pos, radius:e.radius, color:#c84, outline:#f80, z:e.z})
+    let t = smootherstep(0, 1, lerp(0, 1, mode_frames, e.start_f, e.end_f))
+    const color = perceptual_lerp_color(#ff0, #f00, t)
+    const a = 1 - smootherstep(0.5, 1.0, t)
+    draw_disk({pos:e.pos, radius:e.radius, color:rgba(color, a), z:e.z})
 def itor_explosion_update(e):
     const t = (mode_frames - e.start_f) / (e.end_f - e.start_f)
     if t ≥ 1.0:
