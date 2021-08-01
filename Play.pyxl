@@ -47,9 +47,36 @@ def make_building(pos):
         override_color: rgba(1,1,1,0),
         last_hit_f: -∞,
     })
+const BUILDING_MESSAGES = [
+    "That was a\nclose one!",
+    "This is not\na drill!",
+    "Duck and\ncover!",
+    "At least the\nmusic is nice.",
+    "Why do we live\nhere, again?",
+    "It's coming\nright for us!",
+    "Follow\nben_burnes\non Twitter!",
+    "Follow\nallthechip\non Twitter!",
+    "Follow\nConManEd\non Twitter!",
+    "Follow\nCasualEffects\non Twitter!",
+    "Follow\nLesleyMath\non Twitter!",
+    "Now you're\nthinking\nwith portals!",
+    "We can't take\nanother\ndirect hit!",
+    "Are you even\npaying\nattention?",
+    "I'm not even\nsupposed to\nbe here today!",
+    "You clearly\nneed more\npractice.",
+    "What if we all\nlive in a\nsimulation?",
+    "...",
+    "*sobbing\nnoises*",
+    "Insurance will\ncover all\nthis, right?",
+    "Stop reading\nthis and save\nmy building!",
+    "This used to\nbe such a nice\nneighborhood!",
+]
 def itor_building_update(building):
     building.sprite = prototype_blocks_sprite.building.frame(mode_frames)
     building.override_color.a = lerp(1, 0, mode_frames, building.last_hit_f, building.last_hit_f+BUILDING_FLASH_FRAMES)
+    if (mode_frames - last_building_message_f > 10*60) and ξ < 0.0002:
+        last_building_message_f = mode_frames
+        draw_msg_balloon({msg:random_value(BUILDING_MESSAGES), pos:building.pos + xy(10,-4), font:tiny_font, z:50, sound:beep_sound})
     return
         
 def make_explosion(pos):
@@ -339,6 +366,7 @@ let game_over_hook = ∅
 let building_hit_count = 0
 let max_missile_count = 1
 let last_missile_spawn_f = 0
+let last_building_message_f = 0
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -353,6 +381,7 @@ game_over_hook = ∅
 building_hit_count = 0
 max_missile_count = 1
 last_missile_spawn_f = 0
+last_building_message_f = 0
 
 // create building entities
 for x in [64, 128, 192, 256, 320]:
@@ -448,8 +477,6 @@ local:
 // buildings
 for building in buildings:
     draw_entity(building)
-    // ignore this TODO; messages are illegible with bloom enabled
-    //todo("Draw occasional chat messages from buildings in a tiny font")
 // explosions
 iterate(explosions, itor_explosion_draw)
 // missiles
