@@ -4,7 +4,7 @@ Play
 const GROUND_Y = SCREEN_SIZE.y-16
 //const EXPLOSION_DURATION = 90
 const EXPLOSION_MAX_RADIUS = 10
-const PORTAL_RADIUS = 16
+const MAX_PORTAL_RADIUS = 16
 const WARP_DURATION = 3*BGM_FRAMES_PER_BEAT
 const CURSOR_SPEED = 2.5
 const WARP_CONNECTION_MAX_OPACITY = 0.4
@@ -92,7 +92,7 @@ def make_missile():
     if target_building == ∅:
         return // no buildings left to shoot at
     // spawn far enough off-screen to ensure we don't spawn inside a portal or explosion
-    const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), -max(EXPLOSION_MAX_RADIUS, PORTAL_RADIUS))
+    const missile_pos = xy(random_integer(0, SCREEN_SIZE.x-1), -max(EXPLOSION_MAX_RADIUS, MAX_PORTAL_RADIUS))
     const missile_dir = direction(target_building.pos - missile_pos)
     return make_entity({
         pos: missile_pos,
@@ -179,7 +179,7 @@ def itor_missile_update(missile):
         push(explosions, make_explosion(missile.pos))
         return iterate.REMOVE
     // disappear on edge of screen
-    if ( missile.pos.x < 0 ) or ( missile.pos.x > SCREEN_SIZE.x ) or ( missile.pos.y < -max(EXPLOSION_MAX_RADIUS, PORTAL_RADIUS) ):
+    if ( missile.pos.x < 0 ) or ( missile.pos.x > SCREEN_SIZE.x ) or ( missile.pos.y < -max(EXPLOSION_MAX_RADIUS, MAX_PORTAL_RADIUS) ):
         return iterate.REMOVE
 
 def make_portal(pos):
@@ -188,11 +188,11 @@ def make_portal(pos):
         z: 2,
         shape:"disk",
         name:"Portal",
-        radius: PORTAL_RADIUS,
-        size: PORTAL_RADIUS*xy(2,2),
+        radius: MAX_PORTAL_RADIUS,
+        size: MAX_PORTAL_RADIUS*xy(2,2),
         anchorTheta: -0.5 * π,
         anchorTarget: -0.5 * π,
-        anchorPosTarget: pos + ( PORTAL_RADIUS * angle_to_xy( lerp( -π, π, ξ ) ) ),
+        anchorPosTarget: pos + ( MAX_PORTAL_RADIUS * angle_to_xy( lerp( -π, π, ξ ) ) ),
         anchorDriftSpeed: lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ ),
         driftWait: lerp( PORTAL_DRIFT_WAIT_INITIAL_MIN_FRAMES, PORTAL_DRIFT_WAIT_INITIAL_MAX_FRAMES, ξ ),
         positionDriftCenter: random_point_in_band_from_pos( pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y ),
@@ -213,7 +213,7 @@ def itor_portal_update(portal):
                 if ( ξ ≤ PORTAL_CHANCE_TO_BE_A_DICK ) and ( size( buildings ) > 0 ):
                     portal.anchorPosTarget = random_value( buildings ).pos
                 else:
-                    portal.anchorPosTarget = portal.pos + ( PORTAL_RADIUS * lerp( -π, π, ξ ) )
+                    portal.anchorPosTarget = portal.pos + ( MAX_PORTAL_RADIUS * lerp( -π, π, ξ ) )
                 //Create a position and speed for a fictional solar wind that will push the portal
                 portal.anchorDriftSpeed = lerp( PORTAL_ANGLE_DRIFT_SPEED_MIN, PORTAL_ANGLE_DRIFT_SPEED_MAX, ξ )
                 portal.positionDriftCenter = random_point_in_band_from_pos( portal.pos, PORTAL_POS_DRIFT_SOURCE_DISTANCE.x, PORTAL_POS_DRIFT_SOURCE_DISTANCE.y )
@@ -223,9 +223,9 @@ def itor_portal_update(portal):
             const dirToAnchorPosition = direction( portal.anchorPosTarget - portal.pos )
             const vecToBuddy = portal.buddy.pos - portal.pos
             const pointOfClosestApproach = ( dot( vecToBuddy, dirToAnchorPosition ) * dirToAnchorPosition ) + portal.pos
-            if ( dot( vecToBuddy, dirToAnchorPosition ) > 0 ) and ( magnitude( pointOfClosestApproach - portal.buddy.pos ) < PORTAL_RADIUS ):
+            if ( dot( vecToBuddy, dirToAnchorPosition ) > 0 ) and ( magnitude( pointOfClosestApproach - portal.buddy.pos ) < MAX_PORTAL_RADIUS ):
                 const randomMult = random( PORTAL_ANGLE_DRIFT_OFFSET_FROM_BUDDY.x, PORTAL_ANGLE_DRIFT_OFFSET_FROM_BUDDY.y )
-                portal.anchorPosTarget = ( randomMult * PORTAL_RADIUS * direction( pointOfClosestApproach - portal.buddy.pos ) ) + portal.buddy.pos
+                portal.anchorPosTarget = ( randomMult * MAX_PORTAL_RADIUS * direction( pointOfClosestApproach - portal.buddy.pos ) ) + portal.buddy.pos
             //Execute the solar wind push and the angular drift
             portal.anchorTarget = xy_to_angle( portal.anchorPosTarget - portal.pos )
             portal.anchorTheta = turn_towards( portal.anchorTheta, portal.anchorTarget, portal.anchorDriftSpeed )
@@ -279,12 +279,12 @@ def itor_portal_draw(portal):
     //debug to see point of drift - draw_disk({pos:portal.positionDriftCenter, z:portal.z + 2, radius:4, color: #f00, outline:#f00})
     // A portal with an unplaced buddy will still be passed to this function, so we must check for null buddy here.
     if portal.buddy == ∅:
-        draw_disk({pos:portal.pos, z:portal.z, radius:PORTAL_RADIUS, color: #0000, outline:#248})
+        draw_disk({pos:portal.pos, z:portal.z, radius:MAX_PORTAL_RADIUS, color: #0000, outline:#248})
     else:
         //While the portal is changing its output direction, show it in red
         let anim = if portal.driftWait > 0 then portal_sprite.normal else portal_sprite.spinning
         let frame = mode_frames
-        draw_sprite({pos:portal.pos, z:portal.z, sprite:anim.frame(frame)})
+        draw_sprite({pos:portal.pos, z:portal.z, sprite:anim.frame(frame), scale:(portal.radius/MAX_PORTAL_RADIUS)*xy(1,1)})
         if SHOW_ANCHOR_POS_DEBUGGING:
             draw_disk({pos:portal.anchorPosTarget, z:portal.z + 1, radius:4, color: #c44, outline: #822})
         //We then make a constant line effect that zips between the two portals
@@ -411,6 +411,10 @@ if should_spawn_missile():
 // Grow/prune explosions
 iterate(explosions, itor_explosion_update)
 // Shrink/prune portals
+const excess_portals = size(portals) - PORTAL_MAX_COUNT
+for 0 ≤ i < excess_portals:
+    portals[i].isCollapsing = true
+    portals[i].buddy.isCollapsing = true
 iterate(portals, itor_portal_update)
 // Advance missiles & check for impact
 iterate(missiles, itor_missile_update)

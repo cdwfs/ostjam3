@@ -254,6 +254,15 @@
             "max": 100,
             "format": "",
             "quantum": 1
+        },
+        "PORTAL_MAX_COUNT": {
+            "type": "number",
+            "value": "12",
+            "description": "how many portals can be on screen at once before old ones start despawning",
+            "min": 2,
+            "max": 30,
+            "format": "",
+            "quantum": 2
         }
     },
     "screenshot_tag": "PortalCommand"
