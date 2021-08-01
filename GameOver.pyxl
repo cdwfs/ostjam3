@@ -29,8 +29,8 @@ if not disable_input:
         
 draw_text({font:title_font, text:"Game Over!", pos:xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y),
     text_size:max(0,mode_frames/3), x_align:"center", color:#f}).y
-draw_text({font:menu_font, text:"Score: " + score, pos:xy(50% SCREEN_SIZE.x, 45% SCREEN_SIZE.y),
-    x_align:"center", color:#f}).y
+draw_text({font:menu_font, text:"Your buildings were hit {color:#ff0 " + score + "} times",
+    pos:xy(50% SCREEN_SIZE.x, 45% SCREEN_SIZE.y), x_align:"center", markup:true, color:#f}).y
 
 draw_text({font:menu_font, pos:xy(48% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
     text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})
