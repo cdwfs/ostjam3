@@ -2,7 +2,7 @@
     "title": "Portal Command",
     "developer": "CKD Industries",
     "copyright": "©2021 CKD Industries",
-    "license": "CC0/Public Domain (Replace with your own license)",
+    "license": "Licensed as CC-BY 4.0 https://creativecommons.org/licenses/by/4.0/",
     "packages": [],
     "scripts": [
         "music.pyxl",
@@ -18,6 +18,33 @@
     ],
     "start_mode": "Menu",
     "docs": [],
+    "credits": {
+        "main": [
+            "Art:",
+            "Donald Conrad, Cort Stratton",
+            "Design:",
+            "Ken Strickland",
+            "Code:",
+            "Cort Stratton, Ken Strickland",
+            "Sound:",
+            "Cort Stratton",
+            "Music:",
+            "Track / @allthechip",
+            "",
+            "\"Music To Save The Universe To\"",
+            "Quadplay Support:",
+            "Morgan McGuire",
+            "",
+            "Stephan Steinbach",
+            "Special Thanks:",
+            "Lesley Mathieson",
+            "",
+            "RSVS",
+            "",
+            "Ben Burnes"
+        ],
+        "extra": ""
+    },
     "assets": {
         "prototype_blocks_sprite": "prototype-blocks.sprite.json",
         "loopA_sound": "loopA.sound.json",

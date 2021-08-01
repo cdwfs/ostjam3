@@ -1,11 +1,14 @@
 {
     "url": "title.png",
-    "license": "TODO",
+    "license": "© 2021 Donald Conrad. All rights reserved.",
     "sprite_size": {
         "x": 384,
         "y": 224
     },
-    "pivot":        {"x": 0, "y": 0},
+    "pivot": {
+        "x": 0,
+        "y": 0
+    },
     "names": {
         "fg": {
             "x": 0,
