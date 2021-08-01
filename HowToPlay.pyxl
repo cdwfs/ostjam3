@@ -46,7 +46,7 @@ const tldr_help_text = join([
     replace("- Push (a) to place {color:#0af portals}.", gamepad_array[0].prompt),
     "- {color:#0af Portals} are placed in pairs.",
     "- {color:#f88 Missiles} that enter one {color:#0af portal} emerge from its paired,",
-    "  {color:0af portal}, in a specific direction.",
+    "  {color:#0af portal}, in a specific direction.",
     "- {color:#0af Portals} become {color:#f5a unstable} after a while, and change",
     "  their output direction. This is usually bad.",
     "- The {color:#f88 missile} barrage should only last for {color:#ff0 2 minutes}.",
