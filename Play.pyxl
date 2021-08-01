@@ -5,7 +5,7 @@ const GROUND_Y = SCREEN_SIZE.y-16
 //const EXPLOSION_DURATION = 90
 const EXPLOSION_MAX_RADIUS = 10
 const PORTAL_RADIUS = 16
-const WARP_DURATION = 45
+const WARP_DURATION = 3*BGM_FRAMES_PER_BEAT
 const CURSOR_SPEED = 2.5
 const WARP_CONNECTION_MAX_OPACITY = 0.4
 const PORTAL_LIFETIME_FRAMES = 1800
@@ -97,8 +97,6 @@ def make_missile():
         size: xy(3,3),
         shape: "rect",
         dir: missile_dir,
-        trail_start_pos: missile_pos,
-        trail_lines: [],
         portal: ∅,
         portal_enter_f: -1,
         warp_sound: ∅,
@@ -113,10 +111,14 @@ def itor_missile_draw(m):
     else: // normal missile
         draw_rect({pos:m.pos, size:m.size, color:#f00, z:m.z})
     // draw trail
-    if not m.is_in_portal:
-        draw_line({A:m.pos, B:m.trail_start_pos, z:0, color:#800})
-    for line in m.trail_lines:
-        draw_line({A:line.A, B:line.B, z:0, color:#800})
+    const trail_frames = WARP_DURATION - (if m.portal ≠ ∅ then (mode_frames - m.portal_enter_f) else 0)
+    const trail_end = m.pos - m.dir*trail_frames*3*MISSILE_SPEED
+    let trail_points = []
+    for 0 ≤ i ≤ 16:
+        //draw_point({pos:lerp(m.pos, trail_end, i, 0, 16), z:m.z, color:rgba(#f00, lerp(1, 0, i, 0, 16))})
+        push(trail_points, {pos:lerp(m.pos, trail_end, i, 0, 16) - xy(0.5,0.5), color:perceptual_lerp_color(#f00, #000, i/16)})
+    for 0 ≤ i < 16:
+        draw_line({A:trail_points[i].pos, B:trail_points[i+1].pos, z:m.z, color:trail_points[i].color})
     
 def itor_missile_update(missile):
     // handle exiting the portal
@@ -128,7 +130,6 @@ def itor_missile_update(missile):
         if mode_frames - missile.portal_enter_f ≥ WARP_DURATION:
             missile.dir = angle_to_xy( missile.portal.buddy.anchorTheta )
             missile.pos = missile.portal.buddy.pos + (missile.portal.buddy.radius+1) * missile.dir
-            missile.trail_start_pos = clone(missile.pos)
             missile.portal = ∅
             missile.portal_enter_f = -1
             missile.warp_sound = ∅
@@ -143,7 +144,6 @@ def itor_missile_update(missile):
     // collide with portals
     for portal in portals:
         if overlaps(missile.pos, portal):
-            push(missile.trail_lines, {A:clone(missile.trail_start_pos), B:clone(missile.pos)})
             missile.portal = portal
             missile.portal_enter_f = mode_frames
             play_sound({pitch: random(75%, 125%),
