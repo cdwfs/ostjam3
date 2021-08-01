@@ -351,7 +351,7 @@ current_portal = nil
 cursor_pos = 50% SCREEN_SIZE
 game_over_hook = ∅
 building_hit_count = 0
-let max_missile_count = 1
+max_missile_count = 1
 last_missile_spawn_f = 0
 
 // create building entities
