@@ -5,10 +5,12 @@ def enter_menu_mode(data):
     set_mode(Menu) because "Returned to main menu"
 
 let disable_input = false
+let tldr_mode = false
 
 enter
 ────────────────────────────────────────────────────────────────────────
 disable_input = false
+tldr_mode = false
 
 
 frame
@@ -16,6 +18,9 @@ frame
 song_update()
 
 if not disable_input:
+    if gamepad_array[0].aa ≠ 0:
+        tldr_mode = not tldr_mode
+        play_sound(SND_MENU_ACCEPT)
     if gamepad_array[0].bb != 0:
         disable_input = true
         play_sound(SND_MENU_BACK)
@@ -35,12 +40,25 @@ const help_text = join([
     "them to a safe target far from civilian population centers. It's not",
     "ideal, we know. Just...do your best."
     ], "{br}")
+const tldr_help_text = join([
+    "TLDR:",
+    replace("- Move the cursor with [<] [>] [^] [v]", gamepad_array[0].prompt),
+    replace("- Push (a) to place {color:#0af portals}.", gamepad_array[0].prompt),
+    "- {color:#0af Portals} are placed in pairs.",
+    "- {color:#f88 Missiles} that enter one portal emerge from its pair,",
+    "  in a specific direction.",
+    "- {color:#0af Portals} become {color:#f5a unstable} after a while, and change",
+    "  their output direction. This is usually bad.",
+    "- The {color:#f88 missile} barrage should only last for {color:#ff0 2 minutes}.",
+    "- Try to keep the {color:#f88 missile} hits to a minimum!"
+    ], "{br}")
 
 
-
-draw_text({text:help_text, pos:xy(0,0), font:menu_font, x_align:"left", y_align:"top", markup:true, color:#efd})
-draw_text({font:menu_font, pos:xy(50% SCREEN_SIZE.x, 95% SCREEN_SIZE.y),
-    text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"center"})
+draw_text({text:(if tldr_mode then tldr_help_text else help_text), pos:xy(0,0), font:menu_font, x_align:"left", y_align:"top", markup:true, color:#efd})
+draw_text({font:menu_font, pos:xy(10% SCREEN_SIZE.x, 95% SCREEN_SIZE.y),
+    text:replace("(a) " + (if tldr_mode then "Story?" else "Hunh?"), gamepad_array[0].prompt), color:#f, x_align:"left"})
+draw_text({font:menu_font, pos:xy(60% SCREEN_SIZE.x, 95% SCREEN_SIZE.y),
+    text:replace("(b) Return To Menu", gamepad_array[0].prompt), color:#f, x_align:"left"})
 leave
 ────────────────────────────────────────────────────────────────────────
 reset_post_effects()
