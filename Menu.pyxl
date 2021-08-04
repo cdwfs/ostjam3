@@ -6,8 +6,6 @@ const MENU_CREDITS = 2
 const MENU_ITEMS = ["Play", "Help", "Credits"]
 
 const MENU_ITEM_TEXT_ARGS = {font:menu_font, color:#ff0, x_align:"left", shadow:#0008}
-const MENU_CURSOR_TEXT_ARGS = {font:menu_font, text:replace("(a)", gamepad_array[0].prompt),
-    x_align:"right", color:#ff0, shadow:#0008}
 
 def enter_setup_mode(data):
     set_mode(Play) because "selected New Game"
@@ -70,7 +68,8 @@ local:
     for menu_item at i in MENU_ITEMS:
         draw_text({text:menu_item, pos:menu_offset, z:100, ...MENU_ITEM_TEXT_ARGS}).y
         if current_menu_item == i:
-            draw_text({pos:menu_offset - xy(4,0), z:100, ...MENU_CURSOR_TEXT_ARGS})
+            draw_text({font:menu_font, text:replace("(a)", gamepad_array[0].prompt), pos:menu_offset - xy(4,0),
+                z:100, x_align:"right", color:#ff0, shadow:#0008})
         menu_offset.y += menu_font.line_height
     for 0 ≤ i ≤ 34:
         const p = xy(290, 2*i)
