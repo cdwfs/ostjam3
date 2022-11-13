@@ -34,7 +34,7 @@ song_update()
 // Handle cursor movement
 if not disable_input and gamepad_array[0].yy ≠ 0:
     play_sound(SND_MENU_MOVE)
-    current_menu_item = (current_menu_item + size(MENU_ITEMS) + gamepad_array[0].yy) % size(MENU_ITEMS)
+    current_menu_item = (current_menu_item + size(MENU_ITEMS) + gamepad_array[0].yy) mod size(MENU_ITEMS)
 
 // Handle menu selection
 if not disable_input and gamepad_array[0].aa ≠ 0:
